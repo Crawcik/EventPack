@@ -1,0 +1,66 @@
+﻿using Smod2.API;
+using Smod2.Commands;
+using Smod2.Events;
+using Smod2.EventHandlers;
+
+using System.Collections.Generic;
+using Smod2.EventSystem.Events;
+using System.Linq;
+
+namespace EventManager.Events
+{
+    class Versus : Event, IEventHandlerRoundStart
+    {
+        private PluginHandler plugin;
+
+        #region Settings
+
+        public Versus(PluginHandler plugin)
+        {
+            this.plugin = plugin;
+        }
+
+        public override string[] GetCommands()
+        {
+            return new string[] { "event_versus" };
+        }
+
+        public override ConsoleType GetCommandType()
+        {
+            return ConsoleType.RA;
+        }
+
+        public override string GetName()
+        {
+            return "Versus";
+        }
+        #endregion
+        public void OnRoundStart(RoundStartEvent ev)
+        {
+            if (!isQueue)
+                return;
+            ev.Server.Map.Broadcast(20, "Event: D-CLASS v.s NERDS | Każdy ma broń | Checkpointy są zamknięte", false);
+            bool nowNerd = false;
+            List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
+            doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
+            doors.Find(x => x.Name == "CHECKPOINT_LCZ_B").Locked = true;
+            Player[] players = ev.Server.GetPlayers().ToArray();
+            
+            foreach (Player player in players)
+            {
+                if (nowNerd)
+                {
+                    player.ChangeRole(Smod2.API.Role.SCIENTIST);
+                    player.GiveItem(Smod2.API.ItemType.GUNUSP);
+                }
+                else
+                {
+                    player.ChangeRole(Smod2.API.Role.CLASSD);
+                    player.GiveItem(Smod2.API.ItemType.MEDKIT);
+                    player.GiveItem(Smod2.API.ItemType.GUNUSP);
+                }
+                nowNerd = !nowNerd;
+            }
+        }
+    }
+}
