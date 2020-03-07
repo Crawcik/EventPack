@@ -9,7 +9,7 @@ using Smod2.EventSystem.Events;
 
 namespace EventManager.Events
 {
-    class Dziady : Event, IEventHandlerRoundStart, IEventHandlerTeamRespawn
+    public class Dziady : Event, IEventHandlerRoundStart, IEventHandlerTeamRespawn
     {
         private PluginHandler plugin;
 
@@ -18,7 +18,6 @@ namespace EventManager.Events
         {
             this.plugin = plugin;
         }
-
         public override string[] GetCommands()
         {
             return new string[] { "event_dziady" };

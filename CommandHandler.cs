@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd, IEventHandlerCallCommand
+    public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd
     {
         private PluginHandler plugin;
         Dictionary<string, bool> user_quered = new Dictionary<string, bool>();
@@ -107,10 +107,7 @@ namespace EventManager.Events
         {
             if (this.once_event)
                 Commands.ForEach(x => x.isQueue = false);
-        }
-
-        public void OnCallCommand(PlayerCallCommandEvent ev)
-        {
+            Commands.ForEach(x => x.Dispose());
         }
     }
     public abstract class Event
@@ -119,6 +116,7 @@ namespace EventManager.Events
         public abstract string[] GetCommands();
         public abstract ConsoleType GetCommandType();
         public abstract string GetName();
+        public virtual void Dispose() { return; }
     }
 
     public enum ConsoleType

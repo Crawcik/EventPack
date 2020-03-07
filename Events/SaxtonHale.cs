@@ -26,6 +26,12 @@ namespace EventManager.Events
             this.plugin = plugin;
         }
 
+        public override void Dispose()
+        {
+            boss = null;
+            players = null;
+        }
+
         public override string[] GetCommands()
         {
             return new string[] { "event_hale" };

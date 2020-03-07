@@ -22,6 +22,11 @@ namespace EventManager.Events
             this.plugin = _plugin;
             
         }
+        public override void Dispose()
+        {
+            alives.ForEach(x => x.EndTasks());
+            alives.Clear();
+        }
         public override string[] GetCommands()
         {
             return new string[] { "event_ttt" };
@@ -86,14 +91,9 @@ namespace EventManager.Events
                 else
                     alives.Add(new Alives(players[i], Klasy.NIEWINNY));
             }
-            /*List<string> al2 = new List<string>();
-            alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => al2.Add(x.Player.Name));
-            alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.other_terrorists = al2.Where(y=>y != x.Player.Name).ToArray());*/
-
             List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_B").Locked = true;
-
             //Spawning Weapons
             foreach (Smod2.API.Door room in ev.Server.Map.GetDoors())
             {
@@ -113,7 +113,10 @@ namespace EventManager.Events
             }
             List<Alives> terro = alives.FindAll(x => x.Rola == Klasy.ZDRAJCA);
             terro.ForEach(x => x.SetFriends(terro.Where(y=>y != x)));
-            terro.Clear();
+            //Disposing
+            doors = null;
+            terro = null;
+            terrorists = null;
         }
 
         public void OnCheckRoundEnd(CheckRoundEndEvent ev)
@@ -222,12 +225,13 @@ namespace EventManager.Events
             public void EndTasks()
             {
                 isMenuOpen = false;
+                CheckMenu().Dispose();
                 this.Rola = Klasy.NONE;
             }
 
             private async Task CheckMenu()
             {
-                while(!Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
+                while( Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
                 {
                     if (isMenuOpen)
                     {
