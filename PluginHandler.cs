@@ -37,7 +37,6 @@ namespace EventManager
             commands.RegisterCommand(new Dziady(this));
             commands.RegisterCommand(new AlienInnocents(this));
             commands.RegisterCommand(new TTT(this));
-            commands.Commands.Find(x => x.GetName() == "Trouble in Terrorist Town").isQueue = true;
         }
     }
 }

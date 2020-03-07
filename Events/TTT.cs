@@ -86,11 +86,11 @@ namespace EventManager.Events
                 else
                     alives.Add(new Alives(players[i], Klasy.NIEWINNY));
             }
-            List<string> al2 = new List<string>();
+            /*List<string> al2 = new List<string>();
             alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => al2.Add(x.Player.Name));
-            alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.other_terrorists = al2.Where(y=>y != x.Player.Name).ToArray());
+            alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.other_terrorists = al2.Where(y=>y != x.Player.Name).ToArray());*/
 
-        List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
+            List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_B").Locked = true;
 
@@ -111,7 +111,9 @@ namespace EventManager.Events
                     ev.Server.Map.SpawnItem(item, spanw_pos, Vector.Zero);
                 }
             }
-
+            List<Alives> terro = alives.FindAll(x => x.Rola == Klasy.ZDRAJCA);
+            terro.ForEach(x => x.SetFriends(terro.Where(y=>y != x)));
+            terro.Clear();
         }
 
         public void OnCheckRoundEnd(CheckRoundEndEvent ev)
@@ -214,8 +216,7 @@ namespace EventManager.Events
                     this.Player.HideTag(true);
                     this.Player.ChangeRole(Smod2.API.Role.CLASSD);
                     this.Player.PersonalBroadcast(20, "Twoim zadaniem jest przetrwanie. Musisz wykonywać rozkazy detektywa", false);
-                };
-
+                }
             }
 
             public void EndTasks()
@@ -226,11 +227,8 @@ namespace EventManager.Events
 
             private async Task CheckMenu()
             {
-                while(Player.TeamRole.Role != Smod2.API.Role.SPECTATOR)
+                while(!Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
                 {
-                    if (this.Player.TeamRole.Role == Smod2.API.Role.SPECTATOR || this.Player.TeamRole.Role == Smod2.API.Role.UNASSIGNED)
-                        break;
-                    this.Player.PersonalClearBroadcasts();
                     if (isMenuOpen)
                     {
                         this.Player.PersonalBroadcast(1, "Masz otwarty sklep Terrorysty", false);
@@ -252,6 +250,7 @@ namespace EventManager.Events
                                 this.Player.PersonalBroadcast(10, "Możesz otworzyć WSZYSTKIE DRZWI przez 20 sekund!", false);
                                 this.Player.BypassMode = true;
                                 await Task.Delay(20000);
+                                this.Player.PersonalClearBroadcasts();
                                 this.Player.BypassMode = false;
                                 break;
                             case Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY:
@@ -301,6 +300,16 @@ namespace EventManager.Events
                     this.Player.GiveItem(Smod2.API.ItemType.KEYCARDSCIENTISTMAJOR);
                     this.Player.GiveItem(Smod2.API.ItemType.KEYCARDNTFCOMMANDER);
                 }
+            }
+
+            public void SetFriends(IEnumerable<Alives> other)
+            {
+                List<string> temp = new List<string>();
+                foreach (Alives terro in other)
+                {
+                    temp.Add(terro.Player.Name);
+                }
+                other_terrorists = temp.ToArray();
             }
         }
     }
