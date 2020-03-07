@@ -15,7 +15,7 @@ namespace EventManager
     SmodMajor = 3,
     SmodMinor = 8,
     SmodRevision = 0,
-    version = "2.4")]
+    version = "2.6")]
     public class PluginHandler : Plugin
     {
         public override void OnDisable()

@@ -1,21 +1,22 @@
-﻿using Smod2.API;
-using Smod2.Commands;
-using Smod2.Permissions;
+﻿using Smod2;
+using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
+using Smod2.EventSystem.Events;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using Smod2.EventSystem.Events;
 
 namespace EventManager.Events
 {
-    public class TTT : Event, IEventHandlerRoundStart,IEventHandlerCheckRoundEnd, IEventHandlerPlayerDie, IEventHandlerTeamRespawn, IEventHandlerPlayerDropItem
+    public class TTT : Event, IEventHandlerRoundStart,IEventHandlerCheckRoundEnd, IEventHandlerPlayerDie, IEventHandlerTeamRespawn, IEventHandlerPlayerDropItem, IEventHandlerLCZDecontaminate
     {
         private PluginHandler plugin;
         private Random random = new Random();
         private List<Alives> alives = new List<Alives>();
+        private Plugin logbot;
         #region Settings
         public TTT(PluginHandler _plugin)
         {
@@ -26,6 +27,15 @@ namespace EventManager.Events
         {
             alives.ForEach(x => x.EndTasks());
             alives.Clear();
+            try
+            {
+                plugin.PluginManager.EnablePlugin(logbot);
+                logbot = null;
+            }
+            catch
+            {
+                this.plugin.Error("Cannot enable LogBot");
+            }
         }
         public override string[] GetCommands()
         {
@@ -47,6 +57,16 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
+            //Disabled LogBot
+            try
+            {
+                this.logbot = plugin.PluginManager.GetPlugin("pag.logbot.plugin");
+                plugin.PluginManager.DisablePlugin(logbot);
+            }
+            catch
+            {
+                this.plugin.Error("Cannot disable LogBot");
+            }
             //Initializing
             alives.Clear();
             Player[] players = ev.Server.GetPlayers().ToArray();
@@ -141,7 +161,9 @@ namespace EventManager.Events
                 return;
             if (!alives.Exists(x => x.Player.UserId == ev.Player.UserId))
                 return;
-            alives.Find(x => x.Player.UserId == ev.Player.UserId).Rola = Klasy.NONE;
+            if (alives.Exists(x => x.Player.UserId == ev.Killer.UserId && x.Rola == Klasy.ZDRAJCA))
+                alives.Find(x => x.Player.UserId == ev.Killer.UserId).AddMoney(15);
+            alives.Find(x => x.Player.UserId == ev.Player.UserId).EndTasks();
         }
 
         public void OnTeamRespawn(TeamRespawnEvent ev) {
@@ -164,6 +186,11 @@ namespace EventManager.Events
             {
                 plugin.Error("[TTT] Menu item remove failed!");
             }
+        }
+
+        public void OnDecontaminate()
+        {
+            alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.EndTasks());
         }
 
         private enum Klasy
@@ -193,6 +220,8 @@ namespace EventManager.Events
             public bool isMenuOpen { private set; get; } = false;
             private List<Smod2.API.Item> normal_inventory;
             public string[] other_terrorists = null;
+            public bool isDisposing = false;
+            public int money = 0;
             public Alives(Player _Player, Klasy _klasy)
             {
                 this.Player = _Player;
@@ -225,17 +254,18 @@ namespace EventManager.Events
             public void EndTasks()
             {
                 isMenuOpen = false;
-                CheckMenu().Dispose();
+                isDisposing = true;
                 this.Rola = Klasy.NONE;
             }
 
             private async Task CheckMenu()
             {
-                while( Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
+                while(!isDisposing && Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
                 {
+                    await Task.Delay(500);
                     if (isMenuOpen)
                     {
-                        this.Player.PersonalBroadcast(1, "Masz otwarty sklep Terrorysty", false);
+                        this.Player.PersonalBroadcast(1, "Masz otwarty sklep Terrorysty || Money: "+ money, false);
                         switch (this.Player.GetCurrentItem().ItemType)
                         {
                             case Smod2.API.ItemType.COIN:
@@ -244,15 +274,19 @@ namespace EventManager.Events
                             case Smod2.API.ItemType.KEYCARDJANITOR:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.RADIO);
+                                this.money -= 10;
                                 break;
                             case Smod2.API.ItemType.KEYCARDSCIENTIST:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.ADRENALINE);
+                                this.money -= 20;
                                 break;
                             case Smod2.API.ItemType.KEYCARDNTFCOMMANDER:
                                 CloseSpecialMenu();
+                                                                this.Player.PersonalClearBroadcasts();
                                 this.Player.PersonalBroadcast(10, "Możesz otworzyć WSZYSTKIE DRZWI przez 20 sekund!", false);
                                 this.Player.BypassMode = true;
+                                this.money -= 40;
                                 await Task.Delay(20000);
                                 this.Player.PersonalClearBroadcasts();
                                 this.Player.BypassMode = false;
@@ -260,6 +294,7 @@ namespace EventManager.Events
                             case Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.GUNLOGICER);
+                                this.money -= 60;
                                 break;
                         }
                     }
@@ -273,9 +308,7 @@ namespace EventManager.Events
                             this.Player.PersonalBroadcast(1, "Inni terroryści: " + osoby, false);
                         }
                     }
-                    await Task.Delay(500);
                 }
-                this.Rola = Klasy.NONE;
             }
 
             public void OpenSpecialMenu()
@@ -293,19 +326,23 @@ namespace EventManager.Events
                     this.Player.GiveItem(item.ItemType);
             }
 
-            private void GiveMenuItems() 
+            private void GiveMenuItems()
             {
                 isMenuOpen = true;
                 this.Player.GetInventory().ForEach(x => x.Remove());
                 if (this.Rola == Klasy.ZDRAJCA)
                 {
                     this.Player.GiveItem(Smod2.API.ItemType.COIN);
-                    this.Player.GiveItem(Smod2.API.ItemType.KEYCARDJANITOR);
-                    this.Player.GiveItem(Smod2.API.ItemType.KEYCARDSCIENTISTMAJOR);
-                    this.Player.GiveItem(Smod2.API.ItemType.KEYCARDNTFCOMMANDER);
+                    if (money < 10)
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDJANITOR);
+                    if (money < 20)
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDSCIENTISTMAJOR);
+                    if (money < 40)
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDNTFCOMMANDER);
+                    if (money < 60)
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY);
                 }
             }
-
             public void SetFriends(IEnumerable<Alives> other)
             {
                 List<string> temp = new List<string>();
@@ -314,6 +351,10 @@ namespace EventManager.Events
                     temp.Add(terro.Player.Name);
                 }
                 other_terrorists = temp.ToArray();
+            }
+            public void AddMoney(int money)
+            {
+                this.money = this.money + money;
             }
         }
     }
