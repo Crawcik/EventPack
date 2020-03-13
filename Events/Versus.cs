@@ -17,6 +17,7 @@ namespace EventManager.Events
 
         public Versus(PluginHandler plugin)
         {
+            this.Translation = plugin.AllTranslations[GetName()];
             this.plugin = plugin;
         }
 
@@ -39,7 +40,7 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
-            ev.Server.Map.Broadcast(20, "Event: D-CLASS v.s NERDS | Każdy ma broń | Checkpointy są zamknięte", false);
+            ev.Server.Map.Broadcast(20, Translation["game_tutorial"], false);
             bool nowNerd = false;
             List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;

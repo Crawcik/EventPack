@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
 using Smod2.API;
 using Smod2.EventHandlers;
-using Smod2.Commands;
 using Smod2.Events;
 using Smod2.EventSystem.Events;
 
@@ -14,8 +14,10 @@ namespace EventManager.Events
         private PluginHandler plugin;
 
         #region Settings
+
         public Dziady(PluginHandler plugin)
         {
+            this.Translation = plugin.AllTranslations[GetName()];
             this.plugin = plugin;
         }
         public override string[] GetCommands()
@@ -40,7 +42,7 @@ namespace EventManager.Events
                 return;
             
 
-            plugin.CommandManager.CallCommand(plugin.Server, "bc", new string[] { "5", "Niech się zaczną DZIADY!" });
+            plugin.CommandManager.CallCommand(plugin.Server, "bc", new string[] { "5", Translation["start"] });
             Smod2.API.Door gate_a = plugin.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
             gate_a.Open = true;
             gate_a.Locked = true;
@@ -48,7 +50,7 @@ namespace EventManager.Events
             foreach (Player scp in scps)
             {
                 scp.ChangeRole(Smod2.API.Role.SCP_049);
-                scp.PersonalBroadcast(30, "Jesteś kapłanem", false);
+                scp.PersonalBroadcast(30, Translation["scp049_start"], false);
             }
         }
 
@@ -67,7 +69,7 @@ namespace EventManager.Events
                 zombie.Teleport(plugin.Server.Map.GetSpawnPoints(Smod2.API.Role.CHAOS_INSURGENCY)[rand.Next(0, 5)]);
             }
 
-            plugin.Server.Map.Broadcast(10, "Zmarli wstali z grobów!", false);
+            plugin.Server.Map.Broadcast(10, Translation["zombie_spawn"], false);
             plugin.Server.Map.AnnounceCustomMessage("Dead Is Alive . . Destroy Every 1", false);
         }
     }

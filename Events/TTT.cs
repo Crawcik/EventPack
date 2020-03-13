@@ -16,26 +16,16 @@ namespace EventManager.Events
         private PluginHandler plugin;
         private Random random = new Random();
         private List<Alives> alives = new List<Alives>();
-        private Plugin logbot;
         #region Settings
-        public TTT(PluginHandler _plugin)
+        public TTT(PluginHandler plugin)
         {
-            this.plugin = _plugin;
-            
+            this.Translation = plugin.AllTranslations[GetName()];
+            this.plugin = plugin;
         }
         public override void Dispose()
         {
             alives.ForEach(x => x.EndTasks());
             alives.Clear();
-            try
-            {
-                plugin.PluginManager.EnablePlugin(logbot);
-                logbot = null;
-            }
-            catch
-            {
-                this.plugin.Error("Cannot enable LogBot");
-            }
         }
         public override string[] GetCommands()
         {
@@ -57,22 +47,12 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
-            //Disabled LogBot
-            try
-            {
-                this.logbot = plugin.PluginManager.GetPlugin("pag.logbot.plugin");
-                plugin.PluginManager.DisablePlugin(logbot);
-            }
-            catch
-            {
-                this.plugin.Error("Cannot disable LogBot");
-            }
             //Initializing
             alives.Clear();
             Player[] players = ev.Server.GetPlayers().ToArray();
             if (players.Length < 3)
             {
-                ev.Server.Map.Broadcast(10, "Zamało graczy na tryb TTT", false);
+                ev.Server.Map.Broadcast(10, Translation["not_enought_players"], false);
                 return;
             }
             ev.Server.GetPlayers().Clear();
@@ -105,11 +85,11 @@ namespace EventManager.Events
             for (int i = 0; i < players.Length; i++)
             {
                 if (terrorists.Contains(i))
-                    alives.Add(new Alives(players[i], Klasy.ZDRAJCA));
+                    alives.Add(new Alives(players[i], Klasy.ZDRAJCA, Translation));
                 else if (detectiveID == i)
-                    alives.Add(new Alives(players[i], Klasy.DETEKTYW));
+                    alives.Add(new Alives(players[i], Klasy.DETEKTYW, Translation));
                 else
-                    alives.Add(new Alives(players[i], Klasy.NIEWINNY));
+                    alives.Add(new Alives(players[i], Klasy.NIEWINNY, Translation));
             }
             List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
@@ -145,11 +125,11 @@ namespace EventManager.Events
                 return;
             if (!alives.Exists(x => x.Rola == Klasy.ZDRAJCA)) {
                 alives.ForEach(x => x.EndTasks());
-                ev.Server.Map.Broadcast(5, "Niewinni wygrali!", false);
+                ev.Server.Map.Broadcast(5, Translation["i_won"], false);
                 ev.Status = ROUND_END_STATUS.OTHER_VICTORY; } 
             else if (!alives.Exists(x => x.Rola == Klasy.NIEWINNY)){
                 alives.ForEach(x => x.EndTasks());
-                ev.Server.Map.Broadcast(5, "Zdrajcy wygrali!", false);
+                ev.Server.Map.Broadcast(5, Translation["t_won"], false);
                 ev.Status = ROUND_END_STATUS.OTHER_VICTORY; }
             else
                 ev.Status = ROUND_END_STATUS.ON_GOING;
@@ -222,16 +202,19 @@ namespace EventManager.Events
             public string[] other_terrorists = null;
             public bool isDisposing = false;
             public int money = 0;
-            public Alives(Player _Player, Klasy _klasy)
+            public IDictionary<string, string> Translation;
+
+            public Alives(Player _Player, Klasy _klasy, IDictionary<string,string> _translation)
             {
                 this.Player = _Player;
                 this.Rola = _klasy;
-                this.Player.PersonalBroadcast(5, $"Rola: {Enum.GetName(typeof(Klasy), this.Rola)}", false);
+                this.Translation = _translation;
+                this.Player.PersonalBroadcast(5, Translation["role_text"] + Enum.GetName(typeof(Klasy), this.Rola), false);
                 if (_klasy == Klasy.DETEKTYW)
                 {
                     this.Player.ChangeRole(Smod2.API.Role.SCIENTIST);
                     this.Player.SetRank(color: "cyan", text: "Detektyw");
-                    this.Player.PersonalBroadcast(20, "Twoim zadaniem jest znalezienie zdrajcy. Możesz dawać rozkazy niewinnym i kożystać z sklepu, podnieś monetę by go otworzyć", false);
+                    this.Player.PersonalBroadcast(20, Translation["d_tutorial"], false);
 
                     //CheckMenu().GetAwaiter();
                 }
@@ -240,14 +223,14 @@ namespace EventManager.Events
                     this.Player.ChangeRole(Smod2.API.Role.CLASSD);
                     this.Player.GiveItem(Smod2.API.ItemType.COIN);
                     this.Player.SetRank(group: "tet");
-                    this.Player.PersonalBroadcast(20, "Twoim zadaniem jest zabicie wszystkich, oprócz innych terrorystów (współpracuj z nimi). Możesz kożystać z sklepu, podnieś monetę by go otworzyć", false);
+                    this.Player.PersonalBroadcast(20, Translation["t_tutorial"], false);
                     CheckMenu().GetAwaiter();
                 }
                 else 
                 {
                     this.Player.HideTag(true);
                     this.Player.ChangeRole(Smod2.API.Role.CLASSD);
-                    this.Player.PersonalBroadcast(20, "Twoim zadaniem jest przetrwanie. Musisz wykonywać rozkazy detektywa", false);
+                    this.Player.PersonalBroadcast(20, Translation["i_tutorial"], false);
                 }
             }
 
@@ -265,7 +248,7 @@ namespace EventManager.Events
                     await Task.Delay(500);
                     if (isMenuOpen)
                     {
-                        this.Player.PersonalBroadcast(1, "Masz otwarty sklep Terrorysty || Money: "+ money, false);
+                        this.Player.PersonalBroadcast(1, Translation["opened_menu"] + " || Money: "+ money, false);
                         switch (this.Player.GetCurrentItem().ItemType)
                         {
                             case Smod2.API.ItemType.COIN:
@@ -284,7 +267,7 @@ namespace EventManager.Events
                             case Smod2.API.ItemType.KEYCARDNTFCOMMANDER:
                                 CloseSpecialMenu();
                                                                 this.Player.PersonalClearBroadcasts();
-                                this.Player.PersonalBroadcast(10, "Możesz otworzyć WSZYSTKIE DRZWI przez 20 sekund!", false);
+                                this.Player.PersonalBroadcast(10, Translation["ability_text1"], false);
                                 this.Player.BypassMode = true;
                                 this.money -= 40;
                                 await Task.Delay(20000);
@@ -305,7 +288,7 @@ namespace EventManager.Events
                         if (other_terrorists.Length > 0)
                         {
                             string osoby = string.Join(", ", other_terrorists);
-                            this.Player.PersonalBroadcast(1, "Inni terroryści: " + osoby, false);
+                            this.Player.PersonalBroadcast(1, Translation["other_t"] + osoby, false);
                         }
                     }
                 }

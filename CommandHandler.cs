@@ -117,6 +117,7 @@ namespace EventManager.Events
         public abstract ConsoleType GetCommandType();
         public abstract string GetName();
         public virtual void Dispose() { return; }
+        public virtual IDictionary<string, string> Translation { get; set; }
     }
 
     public enum ConsoleType
