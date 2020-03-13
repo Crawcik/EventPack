@@ -11,10 +11,10 @@ namespace EventManager
     [PluginDetails(
     author = "Crawcik",
     configPrefix = "event",
-    description = "EventManager with events",
+    description = "Plugin with events",
     id = "event.manager",
     langFile = "event",
-    name = "Event Manager",
+    name = "Events Pack",
     SmodMajor = 3,
     SmodMinor = 8,
     SmodRevision = 0,
