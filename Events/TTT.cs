@@ -11,7 +11,13 @@ using System.Linq;
 
 namespace EventManager.Events
 {
-    public class TTT : Event, IEventHandlerRoundStart,IEventHandlerCheckRoundEnd, IEventHandlerPlayerDie, IEventHandlerTeamRespawn, IEventHandlerPlayerDropItem, IEventHandlerLCZDecontaminate
+    public class TTT : Event, IEventHandlerRoundStart,
+        IEventHandlerCheckRoundEnd,
+        IEventHandlerPlayerDie,
+        IEventHandlerTeamRespawn,
+        IEventHandlerPlayerDropItem,
+        IEventHandlerLCZDecontaminate,
+        IEventHandlerHandcuffed
     {
         private PluginHandler plugin;
         private Random random = new Random();
@@ -26,6 +32,7 @@ namespace EventManager.Events
         {
             alives.ForEach(x => x.EndTasks());
             alives.Clear();
+            this.plugin.CommandManager.CallCommand(this.plugin.Server, "logbot", new[] { "on" });
         }
         public override string[] GetCommands()
         {
@@ -57,7 +64,7 @@ namespace EventManager.Events
             }
             ev.Server.GetPlayers().Clear();
             List<int> terrorists = new List<int>();
-            int detectiveID;
+            List<int> detectives = new List<int>();
             players.ToList().ForEach(x => x.SetRank(text:""));
             //Setting players
             for (int i = -1; i < players.Length / 10; i++)
@@ -73,31 +80,25 @@ namespace EventManager.Events
                 }
 
             }
-            while (true)
+            for (int i = -1; i < players.Length / 20; i++)
             {
-                int temp = random.Next(0, players.Length - 1);
-                if (!terrorists.Contains(temp))
+                while (true)
                 {
-                    detectiveID = temp;
-                    break;
+                    int temp = random.Next(0, players.Length - 1);
+                    if (!terrorists.Contains(temp))
+                    {
+                        detectives.Add(temp);
+                        break;
+                    }
                 }
-            }
-            for (int i = 0; i < players.Length; i++)
-            {
-                if (terrorists.Contains(i))
-                    alives.Add(new Alives(players[i], Klasy.ZDRAJCA, Translation));
-                else if (detectiveID == i)
-                    alives.Add(new Alives(players[i], Klasy.DETEKTYW, Translation));
-                else
-                    alives.Add(new Alives(players[i], Klasy.NIEWINNY, Translation));
             }
             List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_B").Locked = true;
             //Spawning Weapons
-            foreach (Smod2.API.Door room in ev.Server.Map.GetDoors())
+            foreach (Smod2.API.Door door in doors)
             {
-                Vector vec = room.Position;
+                Vector vec = door.Position;
                 int rng = random.Next(0, 4);
                 for (int i = 0; i < rng; i++)
                 {
@@ -111,6 +112,33 @@ namespace EventManager.Events
                     ev.Server.Map.SpawnItem(item, spanw_pos, Vector.Zero);
                 }
             }
+            Smod2.API.Door[] avalible_doors = doors.Where(door => !(door.Position.y > 20f || door.Name == "372" || door.Name == "CHECKPOINT_LCZ_A" || door.Name == "CHECKPOINT_LCZ_B")).OrderBy(x => random.Next()).ToArray();
+            List<Smod2.API.Door> taked_doors = new List<Smod2.API.Door>();
+            //Setting players posisions
+            int index = 0;
+            foreach (Player player in players)
+            {
+                if (terrorists.Contains(index))
+                    alives.Add(new Alives(player, Klasy.ZDRAJCA, Translation));
+                else if (detectives.Contains(index))
+                    alives.Add(new Alives(player, Klasy.DETEKTYW, Translation));
+                else
+                    alives.Add(new Alives(player, Klasy.NIEWINNY, Translation));
+                while (true)
+                {
+                    int rng = random.Next(avalible_doors.Length - 1);
+                    if (!taked_doors.Contains(avalible_doors[rng]))
+                    {
+                        Vector relative = avalible_doors[rng].Position;
+                        relative = new Vector(2f+relative.x, relative.y, relative.z);
+                        player.Teleport(relative);
+                        taked_doors.Add(avalible_doors[rng]);
+                        break;
+                    }
+                }
+                index++;
+            }
+            //Addons
             List<Alives> terro = alives.FindAll(x => x.Rola == Klasy.ZDRAJCA);
             terro.ForEach(x => x.SetFriends(terro.Where(y=>y != x)));
             //Disposing
@@ -159,7 +187,7 @@ namespace EventManager.Events
             try
             {
                 Alives vc = alives.Find(x => x.Player.UserId == ev.Player.UserId);
-                if (vc.isMenuOpen)
+                if (vc.IsMenuOpen)
                     ev.Item.Remove();
             }
             catch
@@ -171,6 +199,19 @@ namespace EventManager.Events
         public void OnDecontaminate()
         {
             alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.EndTasks());
+        }
+
+        public void OnHandcuffed(PlayerHandcuffedEvent ev)
+        {
+            ev.Allow = false;
+            if (alives.Exists(x => x.Rola == Klasy.DETEKTYW && x.Player.PlayerId == ev.Player.PlayerId))
+            {
+                ev.Owner.GetCurrentItem().Remove();
+                if (alives.Find(x => x.Player.PlayerId == ev.Player.PlayerId).Rola == Klasy.ZDRAJCA)
+                    ev.Owner.PersonalBroadcast(5, ev.Player.Name + Translation["checker_positive"], false);
+                else
+                    ev.Owner.PersonalBroadcast(5, ev.Player.Name + Translation["checker_negative"], false);
+            }
         }
 
         private enum Klasy
@@ -197,7 +238,7 @@ namespace EventManager.Events
         {
             public Player Player;
             public Klasy Rola;
-            public bool isMenuOpen { private set; get; } = false;
+            public bool IsMenuOpen { private set; get; } = false;
             private List<Smod2.API.Item> normal_inventory;
             public string[] other_terrorists = null;
             public bool isDisposing = false;
@@ -213,10 +254,9 @@ namespace EventManager.Events
                 if (_klasy == Klasy.DETEKTYW)
                 {
                     this.Player.ChangeRole(Smod2.API.Role.SCIENTIST);
+                    this.Player.GiveItem(Smod2.API.ItemType.DISARMER);
                     this.Player.SetRank(color: "cyan", text: "Detektyw");
                     this.Player.PersonalBroadcast(20, Translation["d_tutorial"], false);
-
-                    //CheckMenu().GetAwaiter();
                 }
                 else if (_klasy == Klasy.ZDRAJCA)
                 {
@@ -236,7 +276,7 @@ namespace EventManager.Events
 
             public void EndTasks()
             {
-                isMenuOpen = false;
+                IsMenuOpen = false;
                 isDisposing = true;
                 this.Rola = Klasy.NONE;
             }
@@ -246,7 +286,7 @@ namespace EventManager.Events
                 while(!isDisposing && Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
                 {
                     await Task.Delay(500);
-                    if (isMenuOpen)
+                    if (IsMenuOpen)
                     {
                         this.Player.PersonalBroadcast(1, Translation["opened_menu"] + " || Money: "+ money, false);
                         switch (this.Player.GetCurrentItem().ItemType)
@@ -303,7 +343,7 @@ namespace EventManager.Events
 
             public void CloseSpecialMenu()
             {
-                isMenuOpen = false;
+                IsMenuOpen = false;
                 this.Player.GetInventory().ForEach(x => x.Remove());
                 foreach (Smod2.API.Item item in this.normal_inventory)
                     this.Player.GiveItem(item.ItemType);
@@ -311,7 +351,7 @@ namespace EventManager.Events
 
             private void GiveMenuItems()
             {
-                isMenuOpen = true;
+                IsMenuOpen = true;
                 this.Player.GetInventory().ForEach(x => x.Remove());
                 if (this.Rola == Klasy.ZDRAJCA)
                 {

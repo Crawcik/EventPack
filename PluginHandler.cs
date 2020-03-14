@@ -40,7 +40,7 @@ namespace EventManager
             {
                 try
                 {
-                    string raw_config = File.ReadAllText(this.PluginDirectory + $"\\servers\\{this.Server.Port}\\config.json");
+                    string raw_config = File.ReadAllText(this.PluginDirectory + $"\\servers\\{this.Server.Port}\\config.json", System.Text.Encoding.Unicode);
                     AllTranslations = JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(raw_config);
                     Info("Config loaded");
                 }
@@ -78,12 +78,14 @@ namespace EventManager
                         { "i_won", "Innocents won!" },
                         { "t_won", "Traitors won!" },
                         { "role_text", "Your role: " },
-                        { "d_tutorial", "Your task is to find all traitor. You can give orders to the innocents." },
+                        { "d_tutorial", "Your task is to find all traitors. You can give orders to the innocents and use disarmer, to check if someone is traitor (you have one use)" },
                         { "t_tutorial", "Your task is to kill everyone but other terrorists (cooperate with them). You can use the store, pick up a coin to open it" },
                         { "i_tutorial", "Your task is survival. Follow the detective's orders" },
                         { "ability_text1", "You can open ALL DOORS for 20 seconds!" },
                         { "opened_menu", "You have an open store" },
-                        { "other_t", "Other rerrorists " }
+                        { "other_t", "Other rerrorists " },
+                        { "checker_positive", " is traitor!" },
+                        { "checker_negative", " is innocent" }
                     }
                 }
             };
