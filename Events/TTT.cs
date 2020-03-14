@@ -145,6 +145,8 @@ namespace EventManager.Events
             doors = null;
             terro = null;
             terrorists = null;
+            avalible_doors = null;
+            taked_doors = null;
         }
 
         public void OnCheckRoundEnd(CheckRoundEndEvent ev)

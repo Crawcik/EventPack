@@ -91,7 +91,7 @@ namespace EventManager
             };
 
             //Saving config
-            File.WriteAllText(this.PluginDirectory + $"\\servers\\{this.Server.Port}\\config.json", JsonConvert.SerializeObject(DefaultTranslations));
+            File.WriteAllText(this.PluginDirectory + $"\\servers\\{this.Server.Port}\\config.json", JsonConvert.SerializeObject(DefaultTranslations), System.Text.Encoding.Unicode);
             return DefaultTranslations;
         }
     }
