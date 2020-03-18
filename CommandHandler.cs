@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd
+    public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd, IEventHandlerRoundStart
     {
         private PluginHandler plugin;
         Dictionary<string, bool> user_quered = new Dictionary<string, bool>();
-        private bool once_event = false;
+        private bool once_event = false, round_ongoing = false;
+        private string queue_event = null;
 
         public CommandHandler(PluginHandler plugin)
         {
@@ -84,7 +85,12 @@ namespace EventManager.Events
                         commandh.isQueue = false;
                     else if (arg == "once")
                     {
-                        commandh.isQueue = true;
+                        if (round_ongoing) {
+                            queue_event = commandh.GetName();
+                            ev.Admin.PersonalBroadcast(7, "Event odbędzie się w następnej rundzie", false);
+                        }
+                        else
+                            commandh.isQueue = true;
                         this.once_event = true;
                     }
                     ev.Output = "Check Console";
@@ -105,9 +111,22 @@ namespace EventManager.Events
 
         public void OnRoundEnd(RoundEndEvent ev)
         {
+            if (ev.Status == Smod2.API.ROUND_END_STATUS.ON_GOING)
+                this.round_ongoing = true;
+            else
+                this.round_ongoing = false;
             if (this.once_event)
                 Commands.ForEach(x => x.isQueue = false);
             Commands.ForEach(x => x.Dispose());
+            if (queue_event != null)
+            {
+                Commands.Find(x => x.GetName() == queue_event).isQueue = true;
+            }
+        }
+
+        public void OnRoundStart(RoundStartEvent ev)
+        {
+            this.round_ongoing = true;
         }
     }
     public abstract class Event

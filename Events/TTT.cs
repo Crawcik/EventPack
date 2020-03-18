@@ -14,10 +14,10 @@ namespace EventManager.Events
     public class TTT : Event, IEventHandlerRoundStart,
         IEventHandlerCheckRoundEnd,
         IEventHandlerPlayerDie,
-        IEventHandlerTeamRespawn,
+        IEventHandlerDecideTeamRespawnQueue,
         IEventHandlerPlayerDropItem,
         IEventHandlerLCZDecontaminate,
-        IEventHandlerHandcuffed
+        IEventHandlerHandcuffed, IEventHandlerPlayerLeave
     {
         private PluginHandler plugin;
         private Random random = new Random();
@@ -124,18 +124,6 @@ namespace EventManager.Events
                     alives.Add(new Alives(player, Klasy.DETEKTYW, Translation));
                 else
                     alives.Add(new Alives(player, Klasy.NIEWINNY, Translation));
-                while (true)
-                {
-                    int rng = random.Next(avalible_doors.Length - 1);
-                    if (!taked_doors.Contains(avalible_doors[rng]))
-                    {
-                        Vector relative = avalible_doors[rng].Position;
-                        relative = new Vector(2f+relative.x, relative.y, relative.z);
-                        player.Teleport(relative);
-                        taked_doors.Add(avalible_doors[rng]);
-                        break;
-                    }
-                }
                 index++;
             }
             //Addons
@@ -153,6 +141,10 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
+            alives.ForEach(x => {
+                if (x.Player.TeamRole.Role == Smod2.API.Role.UNASSIGNED || x.Player.TeamRole.Role == Smod2.API.Role.SPECTATOR)
+                    x.EndTasks();
+            });
             if (!alives.Exists(x => x.Rola == Klasy.ZDRAJCA)) {
                 alives.ForEach(x => x.EndTasks());
                 ev.Server.Map.Broadcast(5, Translation["i_won"], false);
@@ -203,16 +195,34 @@ namespace EventManager.Events
             alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.EndTasks());
         }
 
+        public void OnDecideTeamRespawnQueue(DecideRespawnQueueEvent ev)
+        {
+            ev.Teams = null;
+        }
+
         public void OnHandcuffed(PlayerHandcuffedEvent ev)
         {
+            if (!isQueue)
+                return;
             ev.Allow = false;
-            if (alives.Exists(x => x.Rola == Klasy.DETEKTYW && x.Player.PlayerId == ev.Player.PlayerId))
+            if (alives.Exists(x => x.Rola == Klasy.DETEKTYW && x.Player.PlayerId == ev.Owner.PlayerId))
             {
                 ev.Owner.GetCurrentItem().Remove();
-                if (alives.Find(x => x.Player.PlayerId == ev.Player.PlayerId).Rola == Klasy.ZDRAJCA)
+                if (alives.Exists(x => x.Rola == Klasy.ZDRAJCA && x.Player.PlayerId == ev.Player.PlayerId))
                     ev.Owner.PersonalBroadcast(5, ev.Player.Name + Translation["checker_positive"], false);
                 else
                     ev.Owner.PersonalBroadcast(5, ev.Player.Name + Translation["checker_negative"], false);
+            }
+        }
+
+        public void OnPlayerLeave(PlayerLeaveEvent ev)
+        {
+            try
+            {
+                alives.Find(x => x.Player.PlayerId == ev.Player.PlayerId).EndTasks();
+            }
+            catch {
+            
             }
         }
 
@@ -244,7 +254,7 @@ namespace EventManager.Events
             private List<Smod2.API.Item> normal_inventory;
             public string[] other_terrorists = null;
             public bool isDisposing = false;
-            public int money = 0;
+            public int money = 30;
             public IDictionary<string, string> Translation;
 
             public Alives(Player _Player, Klasy _klasy, IDictionary<string,string> _translation)
@@ -311,7 +321,7 @@ namespace EventManager.Events
                                                                 this.Player.PersonalClearBroadcasts();
                                 this.Player.PersonalBroadcast(10, Translation["ability_text1"], false);
                                 this.Player.BypassMode = true;
-                                this.money -= 40;
+                                this.money -= 30;
                                 await Task.Delay(20000);
                                 this.Player.PersonalClearBroadcasts();
                                 this.Player.BypassMode = false;
@@ -319,7 +329,12 @@ namespace EventManager.Events
                             case Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.GUNLOGICER);
-                                this.money -= 60;
+                                this.money -= 40;
+                                break;
+                            case Smod2.API.ItemType.KEYCARDGUARD:
+                                CloseSpecialMenu();
+                                this.Player.GiveItem(Smod2.API.ItemType.SCP268);
+                                this.money -= 50;
                                 break;
                         }
                     }
@@ -358,14 +373,16 @@ namespace EventManager.Events
                 if (this.Rola == Klasy.ZDRAJCA)
                 {
                     this.Player.GiveItem(Smod2.API.ItemType.COIN);
-                    if (money < 10)
+                    if (money >= 10)
                         this.Player.GiveItem(Smod2.API.ItemType.KEYCARDJANITOR);
-                    if (money < 20)
-                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDSCIENTISTMAJOR);
-                    if (money < 40)
+                    if (money >= 20)
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDSCIENTIST);
+                    if (money >= 30)
                         this.Player.GiveItem(Smod2.API.ItemType.KEYCARDNTFCOMMANDER);
-                    if (money < 60)
+                    if (money >= 40)
                         this.Player.GiveItem(Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY);
+                    if (money >= 50)
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDGUARD);
                 }
             }
             public void SetFriends(IEnumerable<Alives> other)

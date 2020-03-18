@@ -67,8 +67,7 @@ namespace EventManager
             {
                 try
                 {
-                    string raw_config = File.ReadAllText(this.PluginDirectory + $"\\servers\\{this.Server.Port}\\config.json", System.Text.Encoding.Unicode);
-                    AllTranslations = JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(raw_config);
+                    AllTranslations = config.ToObject<Dictionary<string,IDictionary<string,string>>>();
                     Info("Config loaded");
                 }
                 catch
