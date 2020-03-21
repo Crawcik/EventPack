@@ -11,14 +11,11 @@ namespace EventManager.Events
 {
     class Versus : Event, IEventHandlerRoundStart
     {
-        private PluginHandler plugin;
-
         #region Settings
 
-        public Versus(PluginHandler plugin)
+        public Versus()
         {
-            this.Translation = plugin.AllTranslations[GetName()];
-            this.plugin = plugin;
+            this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
         }
 
         public override string[] GetCommands()

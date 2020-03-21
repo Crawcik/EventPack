@@ -19,20 +19,18 @@ namespace EventManager.Events
         IEventHandlerLCZDecontaminate,
         IEventHandlerHandcuffed, IEventHandlerPlayerLeave
     {
-        private PluginHandler plugin;
         private Random random = new Random();
         private List<Alives> alives = new List<Alives>();
         #region Settings
-        public TTT(PluginHandler plugin)
+        public TTT()
         {
-            this.Translation = plugin.AllTranslations[GetName()];
-            this.plugin = plugin;
+            this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
         }
         public override void Dispose()
         {
             alives.ForEach(x => x.EndTasks());
             alives.Clear();
-            this.plugin.CommandManager.CallCommand(this.plugin.Server, "logbot", new[] { "on" });
+            PluginHandler.Shared.CommandManager.CallCommand(PluginHandler.Shared.Server, "logbot", new[] { "on" });
         }
         public override string[] GetCommands()
         {
@@ -186,7 +184,7 @@ namespace EventManager.Events
             }
             catch
             {
-                plugin.Error("[TTT] Menu item remove failed!");
+                PluginHandler.Shared.Error("[TTT] Menu item remove failed!");
             }
         }
 

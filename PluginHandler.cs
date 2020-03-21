@@ -18,9 +18,11 @@ namespace EventManager
     SmodMajor = 3,
     SmodMinor = 8,
     SmodRevision = 0,
-    version = "2.7")]
+    version = "2.8")]
     public class PluginHandler : Plugin
     {
+        public static PluginHandler Shared { private set; get; }
+
         private CommandHandler commands;
         public Dictionary<string, IDictionary<string, string>> AllTranslations;
         private Dictionary<string, IDictionary<string, string>> DefaultTranslations = new Dictionary<string, IDictionary<string, string>>{
@@ -30,6 +32,7 @@ namespace EventManager
                     }
                 }, {
                     "Dziady", new Dictionary<string, string> {
+                        { "start", "Event 'Dziady' starts" },
                         { "scp049_start", "You're a priest" },
                         { "zombie_spawn", "The Dead rose from their graves!" }
                     }
@@ -79,13 +82,14 @@ namespace EventManager
             }
             if (!IsConfigCorrect())
                 Warn("Config is incorrect! Please check if your config has any mistakes or isn't outdated! ");
-            commands.RegisterCommand(new Versus(this));
-            commands.RegisterCommand(new Dziady(this));
-            commands.RegisterCommand(new TTT(this));
+            commands.RegisterCommand(new Versus());
+            commands.RegisterCommand(new Dziady());
+            commands.RegisterCommand(new TTT());
         }
 
         public override void Register()
         {
+            Shared = this;
             commands = new CommandHandler(this);
             AddEventHandlers(commands);
         }

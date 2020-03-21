@@ -11,14 +11,11 @@ namespace EventManager.Events
 {
     public class Dziady : Event, IEventHandlerRoundStart, IEventHandlerTeamRespawn
     {
-        private PluginHandler plugin;
-
         #region Settings
 
-        public Dziady(PluginHandler plugin)
+        public Dziady()
         {
-            this.Translation = plugin.AllTranslations[GetName()];
-            this.plugin = plugin;
+            this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
         }
         public override string[] GetCommands()
         {
@@ -42,8 +39,8 @@ namespace EventManager.Events
                 return;
             
 
-            plugin.CommandManager.CallCommand(plugin.Server, "bc", new string[] { "5", Translation["start"] });
-            Smod2.API.Door gate_a = plugin.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
+            PluginHandler.Shared.CommandManager.CallCommand(PluginHandler.Shared.Server, "bc", new string[] { "5", Translation["start"] });
+            Smod2.API.Door gate_a = PluginHandler.Shared.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
             gate_a.Open = true;
             gate_a.Locked = true;
             Player[] scps = ev.Server.GetPlayers().Where(x => x.TeamRole.Team == Smod2.API.Team.SCP).ToArray();
@@ -64,13 +61,13 @@ namespace EventManager.Events
             foreach (Player zombie in players)
             {
                 var rand = new Random();
-                plugin.Info(zombie.PlayerId.ToString());
+                PluginHandler.Shared.Info(zombie.PlayerId.ToString());
                 zombie.ChangeRole(Smod2.API.Role.SCP_049_2);
-                zombie.Teleport(plugin.Server.Map.GetSpawnPoints(Smod2.API.Role.CHAOS_INSURGENCY)[rand.Next(0, 5)]);
+                zombie.Teleport(PluginHandler.Shared.Server.Map.GetSpawnPoints(Smod2.API.Role.CHAOS_INSURGENCY)[rand.Next(0, 5)]);
             }
 
-            plugin.Server.Map.Broadcast(10, Translation["zombie_spawn"], false);
-            plugin.Server.Map.AnnounceCustomMessage("Dead Is Alive . . Destroy Every 1", false);
+            PluginHandler.Shared.Server.Map.Broadcast(10, Translation["zombie_spawn"], false);
+            PluginHandler.Shared.Server.Map.AnnounceCustomMessage("Dead Is Alive . . Destroy Every 1", false);
         }
     }
 }
