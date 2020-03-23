@@ -11,27 +11,21 @@ namespace EventManager.Events
 {
     public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd, IEventHandlerRoundStart
     {
-        private PluginHandler plugin;
         Dictionary<string, bool> user_quered = new Dictionary<string, bool>();
         private bool once_event = false, round_ongoing = false;
         private string queue_event = null;
-
-        public CommandHandler(PluginHandler plugin)
-        {
-            this.plugin = plugin;
-        }
         public List<Event> Commands { get; } = new List<Event>();
         public void RegisterCommand(Event command)
         {
             if (Commands.Find(x => x.GetName() == command.GetName() || Array.Exists(command.GetCommands(), y => x.GetCommands().Contains(y))) == null)
             { 
                 Commands.Add(command);
-                plugin.Info($"Added {command.GetName()} command with {command.GetCommandType()} type");
-                plugin.AddEventHandlers(command as IEventHandler);
+                PluginHandler.Shared.Info($"Added {command.GetName()} command with {command.GetCommandType()} type");
+                PluginHandler.Shared.AddEventHandlers(command as IEventHandler);
             }
             else
             {
-                plugin.Error($"Couldn't add {command.GetName()}");   
+                PluginHandler.Shared.Error($"Couldn't add {command.GetName()}");   
             }
         }
         

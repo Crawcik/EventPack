@@ -90,7 +90,7 @@ namespace EventManager
         public override void Register()
         {
             Shared = this;
-            commands = new CommandHandler(this);
+            commands = new CommandHandler();
             AddEventHandlers(commands);
         }
 
@@ -112,7 +112,7 @@ namespace EventManager
         private Dictionary<string, IDictionary<string, string>> GenerateConfig()
         {
             //Saving config
-            File.WriteAllText(this.PluginDirectory + $"\\servers\\{this.Server.Port}\\config.json", JsonConvert.SerializeObject(DefaultTranslations), System.Text.Encoding.Unicode);
+            File.WriteAllText(this.PluginDirectory + $"/servers/{this.Server.Port}/config.json", JsonConvert.SerializeObject(DefaultTranslations), System.Text.Encoding.Unicode);
             return DefaultTranslations;
         }
     }

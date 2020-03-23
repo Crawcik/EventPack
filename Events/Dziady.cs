@@ -12,7 +12,6 @@ namespace EventManager.Events
     public class Dziady : Event, IEventHandlerRoundStart, IEventHandlerTeamRespawn
     {
         #region Settings
-
         public Dziady()
         {
             this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
@@ -37,9 +36,7 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
-            
-
-            PluginHandler.Shared.CommandManager.CallCommand(PluginHandler.Shared.Server, "bc", new string[] { "5", Translation["start"] });
+            PluginHandler.Shared.Server.Map.Broadcast(5, Translation["start"], false);
             Smod2.API.Door gate_a = PluginHandler.Shared.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
             gate_a.Open = true;
             gate_a.Locked = true;
@@ -55,17 +52,13 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
+            Random rand = new Random();
             ev.SpawnChaos = true;
-            Player[] players = ev.PlayerList.ToArray();
-            ev.PlayerList.Clear();
-            foreach (Player zombie in players)
+            ev.PlayerList.ForEach(zombie =>
             {
-                var rand = new Random();
-                PluginHandler.Shared.Info(zombie.PlayerId.ToString());
                 zombie.ChangeRole(Smod2.API.Role.SCP_049_2);
-                zombie.Teleport(PluginHandler.Shared.Server.Map.GetSpawnPoints(Smod2.API.Role.CHAOS_INSURGENCY)[rand.Next(0, 5)]);
-            }
-
+                zombie.Teleport(PluginHandler.Shared.Server.Map.GetSpawnPoints(Smod2.API.Role.CHAOS_INSURGENCY)[rand.Next(0, 3)]);
+            });
             PluginHandler.Shared.Server.Map.Broadcast(10, Translation["zombie_spawn"], false);
             PluginHandler.Shared.Server.Map.AnnounceCustomMessage("Dead Is Alive . . Destroy Every 1", false);
         }

@@ -12,7 +12,6 @@ namespace EventManager.Events
     class Versus : Event, IEventHandlerRoundStart
     {
         #region Settings
-
         public Versus()
         {
             this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
