@@ -38,7 +38,7 @@ namespace EventManager
                     }
                 }, {
                     "Trouble in Terrorist Town", new Dictionary<string, string> {
-                        { "not_enought_players", "'Not enought players to start gamemode" },
+                        { "not_enought_players", "Not enought players to start gamemode" },
                         { "i_won", "Innocents won!" },
                         { "t_won", "Traitors won!" },
                         { "role_text", "Your role: " },
@@ -50,6 +50,10 @@ namespace EventManager
                         { "other_t", "Other rerrorists " },
                         { "checker_positive", " is traitor!" },
                         { "checker_negative", " is innocent" }
+                    }
+                }, {
+                    "Saxton Hale", new Dictionary<string, string> {
+                        { "tutorial", "<size=20>Janitor card - RAGE, MTF card - Taunt, O5 card - SPECJAL</size>" }
                     }
                 }
             };
@@ -85,6 +89,7 @@ namespace EventManager
             commands.RegisterCommand(new Versus());
             commands.RegisterCommand(new Dziady());
             commands.RegisterCommand(new TTT());
+            commands.RegisterCommand(new Saxton_Hale());
         }
 
         public override void Register()

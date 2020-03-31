@@ -1,4 +1,5 @@
 ﻿using Smod2.API;
+using Smod2.Commands;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using System.Collections.Generic;
@@ -6,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class Saxton_Hale : Event, IEventHandlerRoundStart, IEventHandlerCheckRoundEnd
+    public class Saxton_Hale : Event, IEventHandlerRoundStart, IEventHandlerCheckRoundEnd, IEventHandlerSpawn, IEventHandlerWaitingForPlayers
     {
         public Dictionary<string, int> QueuePoints = new Dictionary<string, int>();
         private Boss boss = null;
+        public int boss_type_num = 0;
         #region Setting
         public Saxton_Hale()
         {
@@ -30,53 +32,76 @@ namespace EventManager.Events
         {
             return "Saxton Hale";
         }
-
-        public override void Dispose()
-        {
-            boss = null;
-        }
         #endregion
 
         public void OnRoundStart(RoundStartEvent ev)
         {
+            if (!isQueue)
+                return;
+            //Setting map
+            ev.Server.Map.GetElevators().ForEach(x => x.Locked = true);
             //Selecting player
-            Player  most_player = null;
+            Player most_player = null;
             int most_points = 0;
             ev.Server.GetPlayers().ForEach(player =>
             {
-                if (QueuePoints.ContainsKey(player.UserId))
+                if (!QueuePoints.ContainsKey(player.UserId))
                     QueuePoints.Add(player.UserId, 0);
                 if (QueuePoints[player.UserId] >= most_points)
                 {
                     most_player = player;
-                    QueuePoints[player.UserId] = most_points;
+                    most_points = QueuePoints[player.UserId];
                 }
                 QueuePoints[player.UserId]++;
                 player.ChangeRole(Smod2.API.Role.NTF_LIEUTENANT);
                 player.GetInventory().ForEach(x => x.Remove());
                 player.GiveItem(Smod2.API.ItemType.GUNE11SR);
                 player.GiveItem(Smod2.API.ItemType.GRENADEFRAG);
+                player.GiveItem(Smod2.API.ItemType.ADRENALINE);
                 player.SetAmmo(AmmoType.DROPPED_5, 1000);
             });
             QueuePoints[most_player.UserId] = 0;
-
             //Setting boss
-            Boss boss = new Boss(Boss.Class.SAXTON, most_player);
+            if (boss_type_num == 2)
+                boss_type_num = 0;
+                this.boss = new Boss((Boss.Class)boss_type_num, most_player);
+            boss_type_num++;
+            this.boss.player.SetHealth(ev.Server.GetPlayers().Count * 600);
             most_player = null;
         }
 
         public void OnCheckRoundEnd(CheckRoundEndEvent ev)
         {
+            if (!isQueue || boss == null)
+                return;
             if (ev.Status == ROUND_END_STATUS.ON_GOING)
             {
                 ev.Server.Map.ClearBroadcasts();
-                ev.Server.Map.Broadcast(2, "Boss HP: " + boss.player.GetHealth(), false);
+                ev.Server.Map.Broadcast(2, boss.player.Name + " become " + boss.role.ToString() + " | Boss HP: " + boss.player.GetHealth(), false);
             }
             else
             {
-                if (boss != null)
+                if (boss.player.TeamRole.Role != Smod2.API.Role.CHAOS_INSURGENCY)
+                {
                     boss.EndTask();
+                    boss = null;
+                }
             }
+        }
+
+        public void OnSpawn(PlayerSpawnEvent ev)
+        {
+            if (!isQueue)
+                return;
+            if (ev.Player.TeamRole.Role == Smod2.API.Role.CLASSD)
+                ev.Player.ChangeRole(Smod2.API.Role.SPECTATOR);
+        }
+
+        public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
+        {
+            if (!isQueue)
+                return;
+            ev.Server.Map.Broadcast(20, Translation["tutorial"], false);
         }
 
         private class Boss
@@ -91,8 +116,8 @@ namespace EventManager.Events
                 this.player = player;
                 this.ActiveAbbilities = new List<Abbility>() { Abbility.RAGE, Abbility.TAUNT, Abbility.SPECIAL };
                 this.player.ChangeRole(Smod2.API.Role.CHAOS_INSURGENCY);
-                SetNormalInventory();
                 Handle().GetAwaiter();
+                SetNormalInventory();
             }
 
             public void EndTask()
@@ -108,14 +133,26 @@ namespace EventManager.Events
                     switch ((int)player.GetCurrentItem().ItemType)
                     {
                         case (int)Abbility.RAGE:
-                            player.SetCurrentItem(Smod2.API.ItemType.NONE);
+                            int hp = player.GetHealth();
+                            Vector vector = this.player.GetPosition();
                             ActiveAbbilities.Remove(Abbility.RAGE);
-                            player.ChangeRole(Smod2.API.Role.SCP_096);
-                            await Task.Delay(10000);
-                            player.ChangeRole(Smod2.API.Role.CHAOS_INSURGENCY);
+                            await Task.Delay(50);
+                            this.player.ChangeRole(Smod2.API.Role.SCP_096);
+                            await Task.Delay(50);
+                            this.player.Teleport(vector);
+                            this.player.SetHealth(hp);
+                            await Task.Delay(17000);
+                            vector = this.player.GetPosition();
+                            hp = player.GetHealth();
+                            await Task.Delay(50);
+                            this.player.ChangeRole(Smod2.API.Role.CHAOS_INSURGENCY);
+                            await Task.Delay(50);
+                            this.player.Teleport(vector);
+                            this.player.SetHealth(hp);
                             SetNormalInventory();
                             break;
                         case (int)Abbility.TAUNT:
+                            PluginHandler.Shared.Server.Map.Shake();
                             ActiveAbbilities.Remove(Abbility.TAUNT);
                             PluginHandler.Shared.Server.GetPlayers(Smod2.API.Role.NTF_LIEUTENANT).ForEach(x => x.GetInventory().ForEach(y => y.Drop()));
                             SetNormalInventory();
@@ -125,11 +162,10 @@ namespace EventManager.Events
                             SpecialAbbility().Start();
                             SpecialAbbility().Wait();
                             break;
-                        case (int)Smod2.API.ItemType.GUNUSP:
+                        case (int)Smod2.API.ItemType.GUNE11SR:
+                            player.GetInventory().Find(x => x.ItemType == Smod2.API.ItemType.GUNE11SR).Drop();
                             break;
-                        default:
-                            SetNormalInventory();
-                            break;
+                        
                     }
                     await Task.Delay(500);
                 }
@@ -140,12 +176,27 @@ namespace EventManager.Events
                 switch (role)
                 {
                     case Class.SAXTON:
+                        this.player.GetInventory().ForEach(x => x.Remove());
                         player.SetGodmode(true);
                         player.GiveItem(Smod2.API.ItemType.GUNLOGICER);
+                        await Task.Delay(100);
                         player.SetCurrentItem(Smod2.API.ItemType.GUNLOGICER);
                         await Task.Delay(10000);
                         player.SetGodmode(false);
                         SetNormalInventory();
+                        break;
+                    case Class.RIPPER:
+                        Vector vector = this.player.GetPosition();
+                        PluginHandler.Shared.Server.GetPlayers(Smod2.API.Role.SPECTATOR).ForEach(x => {
+                            x.ChangeRole(Smod2.API.Role.ZOMBIE);
+                            x.Teleport(vector);
+                        });
+                        break;
+                    case Class.GHOST:
+                        SetNormalInventory();
+                        this.player.SetGhostMode(true);
+                        await Task.Delay(10000);
+                        this.player.SetGhostMode(false);
                         break;
                 }
             }
@@ -161,8 +212,8 @@ namespace EventManager.Events
             public enum Class
             {
                 SAXTON,
-                DEMOMAN,
-                RIPPER
+                RIPPER,
+                GHOST
             }
 
             public enum Abbility
