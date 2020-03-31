@@ -18,7 +18,7 @@ namespace EventManager
     SmodMajor = 3,
     SmodMinor = 8,
     SmodRevision = 0,
-    version = "2.8")]
+    version = "2.9")]
     public class PluginHandler : Plugin
     {
         public static PluginHandler Shared { private set; get; }
