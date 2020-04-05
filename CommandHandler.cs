@@ -32,6 +32,11 @@ namespace EventManager.Events
 
         public void OnAdminQuery(AdminQueryEvent ev)
         {
+            if (!string.IsNullOrEmpty(queue_event))
+            {
+                ev.Admin.PersonalBroadcast(7, "Obecnie event jest w poczekalni, spróbuj w następnej rundzie", false);
+                return;
+            }
             string command = null ;
             string arg = null;
 
@@ -112,7 +117,7 @@ namespace EventManager.Events
             if (this.once_event)
                 Commands.ForEach(x => x.isQueue = false);
             Commands.ForEach(x => x.Dispose());
-            if (queue_event != null)
+            if (string.IsNullOrEmpty(queue_event))
             {
                 Commands.Find(x => x.GetName() == queue_event).isQueue = true;
             }
@@ -121,6 +126,7 @@ namespace EventManager.Events
         public void OnRoundStart(RoundStartEvent ev)
         {
             this.round_ongoing = true;
+            queue_event = null;
         }
     }
     public abstract class Event

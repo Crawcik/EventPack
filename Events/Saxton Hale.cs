@@ -62,7 +62,7 @@ namespace EventManager.Events
             });
             QueuePoints[most_player.UserId] = 0;
             //Setting boss
-            if (boss_type_num == 2)
+            if (boss_type_num == 3)
                 boss_type_num = 0;
                 this.boss = new Boss((Boss.Class)boss_type_num, most_player);
             boss_type_num++;
@@ -102,6 +102,11 @@ namespace EventManager.Events
             if (!isQueue)
                 return;
             ev.Server.Map.Broadcast(20, Translation["tutorial"], false);
+        }
+
+        public override void Dispose()
+        {
+            this.boss = null;
         }
 
         private class Boss
