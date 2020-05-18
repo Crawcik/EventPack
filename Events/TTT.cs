@@ -140,7 +140,7 @@ namespace EventManager.Events
             if (!isQueue)
                 return;
             alives.ForEach(x => {
-                if (x.Player.TeamRole.Role == Smod2.API.Role.UNASSIGNED || x.Player.TeamRole.Role == Smod2.API.Role.SPECTATOR)
+                if (x.Player.TeamRole.Role == Smod2.API.RoleType.UNASSIGNED || x.Player.TeamRole.Role == Smod2.API.RoleType.SPECTATOR)
                     x.EndTasks();
             });
             if (!alives.Exists(x => x.Rola == Klasy.ZDRAJCA)) {
@@ -169,7 +169,7 @@ namespace EventManager.Events
         public void OnTeamRespawn(TeamRespawnEvent ev) {
             if (!isQueue)
                 return;
-            ev.PlayerList.ForEach(x => x.ChangeRole(Smod2.API.Role.SPECTATOR));
+            ev.PlayerList.ForEach(x => x.ChangeRole(Smod2.API.RoleType.SPECTATOR));
         }
 
         public void OnPlayerDropItem(PlayerDropItemEvent ev)
@@ -263,14 +263,14 @@ namespace EventManager.Events
                 this.Player.PersonalBroadcast(5, Translation["role_text"] + Enum.GetName(typeof(Klasy), this.Rola), false);
                 if (_klasy == Klasy.DETEKTYW)
                 {
-                    this.Player.ChangeRole(Smod2.API.Role.SCIENTIST);
+                    this.Player.ChangeRole(Smod2.API.RoleType.SCIENTIST);
                     this.Player.GiveItem(Smod2.API.ItemType.DISARMER);
                     this.Player.SetRank(color: "cyan", text: "Detektyw");
                     this.Player.PersonalBroadcast(20, Translation["d_tutorial"], false);
                 }
                 else if (_klasy == Klasy.ZDRAJCA)
                 {
-                    this.Player.ChangeRole(Smod2.API.Role.CLASSD);
+                    this.Player.ChangeRole(Smod2.API.RoleType.CLASSD);
                     this.Player.GiveItem(Smod2.API.ItemType.COIN);
                     this.Player.SetRank(group: "tet");
                     this.Player.PersonalBroadcast(20, Translation["t_tutorial"], false);
@@ -279,7 +279,7 @@ namespace EventManager.Events
                 else 
                 {
                     this.Player.HideTag(true);
-                    this.Player.ChangeRole(Smod2.API.Role.CLASSD);
+                    this.Player.ChangeRole(Smod2.API.RoleType.CLASSD);
                     this.Player.PersonalBroadcast(20, Translation["i_tutorial"], false);
                 }
             }
@@ -293,7 +293,7 @@ namespace EventManager.Events
 
             private async Task CheckMenu()
             {
-                while(!isDisposing && Player.TeamRole.Role != Smod2.API.Role.SPECTATOR && Player.TeamRole.Role != Smod2.API.Role.UNASSIGNED)
+                while(!isDisposing && Player.TeamRole.Role != Smod2.API.RoleType.SPECTATOR && Player.TeamRole.Role != Smod2.API.RoleType.UNASSIGNED)
                 {
                     await Task.Delay(500);
                     if (IsMenuOpen)
@@ -304,17 +304,17 @@ namespace EventManager.Events
                             case Smod2.API.ItemType.COIN:
                                 CloseSpecialMenu();
                                 break;
-                            case Smod2.API.ItemType.KEYCARDJANITOR:
+                            case Smod2.API.ItemType.KEYCARD_JANITOR:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.RADIO);
                                 this.money -= 10;
                                 break;
-                            case Smod2.API.ItemType.KEYCARDSCIENTIST:
+                            case Smod2.API.ItemType.KEYCARD_SCIENTIST:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.ADRENALINE);
                                 this.money -= 20;
                                 break;
-                            case Smod2.API.ItemType.KEYCARDNTFCOMMANDER:
+                            case Smod2.API.ItemType.KEYCARD_NTF_COMMANDER:
                                 CloseSpecialMenu();
                                                                 this.Player.PersonalClearBroadcasts();
                                 this.Player.PersonalBroadcast(10, Translation["ability_text1"], false);
@@ -324,12 +324,12 @@ namespace EventManager.Events
                                 this.Player.PersonalClearBroadcasts();
                                 this.Player.BypassMode = false;
                                 break;
-                            case Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY:
+                            case Smod2.API.ItemType.KEYCARD_CHAOS_INSURGENCY:
                                 CloseSpecialMenu();
-                                this.Player.GiveItem(Smod2.API.ItemType.GUNLOGICER);
+                                this.Player.GiveItem(Smod2.API.ItemType.GUN_LOGICER);
                                 this.money -= 40;
                                 break;
-                            case Smod2.API.ItemType.KEYCARDGUARD:
+                            case Smod2.API.ItemType.KEYCARD_GUARD:
                                 CloseSpecialMenu();
                                 this.Player.GiveItem(Smod2.API.ItemType.SCP268);
                                 this.money -= 50;
@@ -372,15 +372,15 @@ namespace EventManager.Events
                 {
                     this.Player.GiveItem(Smod2.API.ItemType.COIN);
                     if (money >= 10)
-                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDJANITOR);
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARD_JANITOR);
                     if (money >= 20)
-                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDSCIENTIST);
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARD_SCIENTIST);
                     if (money >= 30)
-                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDNTFCOMMANDER);
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARD_NTF_COMMANDER);
                     if (money >= 40)
-                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDCHAOSINSURGENCY);
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARD_CHAOS_INSURGENCY);
                     if (money >= 50)
-                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARDGUARD);
+                        this.Player.GiveItem(Smod2.API.ItemType.KEYCARD_GUARD);
                 }
             }
             public void SetFriends(IEnumerable<Alives> other)

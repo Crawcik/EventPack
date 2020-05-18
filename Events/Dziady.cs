@@ -40,10 +40,10 @@ namespace EventManager.Events
             Smod2.API.Door gate_a = PluginHandler.Shared.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
             gate_a.Open = true;
             gate_a.Locked = true;
-            Player[] scps = ev.Server.GetPlayers().Where(x => x.TeamRole.Team == Smod2.API.Team.SCP).ToArray();
+            Player[] scps = ev.Server.GetPlayers().Where(x => x.TeamRole.Team == Smod2.API.TeamType.SCP).ToArray();
             foreach (Player scp in scps)
             {
-                scp.ChangeRole(Smod2.API.Role.SCP_049);
+                scp.ChangeRole(Smod2.API.RoleType.SCP_049);
                 scp.PersonalBroadcast(30, Translation["scp049_start"], false);
             }
         }
@@ -56,11 +56,11 @@ namespace EventManager.Events
             ev.SpawnChaos = true;
             ev.PlayerList.ForEach(zombie =>
             {
-                zombie.ChangeRole(Smod2.API.Role.SCP_049_2);
-                zombie.Teleport(PluginHandler.Shared.Server.Map.GetSpawnPoints(Smod2.API.Role.CHAOS_INSURGENCY)[rand.Next(0, 3)]);
+                zombie.ChangeRole(Smod2.API.RoleType.SCP_049_2);
+                zombie.Teleport(PluginHandler.Shared.Server.Map.GetSpawnPoints(Smod2.API.RoleType.CHAOS_INSURGENCY)[rand.Next(0, 3)]);
             });
             PluginHandler.Shared.Server.Map.Broadcast(10, Translation["zombie_spawn"], false);
-            PluginHandler.Shared.Server.Map.AnnounceCustomMessage("Dead Is Alive . . Destroy Every 1", false);
+            PluginHandler.Shared.Server.Map.AnnounceCustomMessage("Dead Is Alive . . Destroy Every 1");
         }
     }
 }

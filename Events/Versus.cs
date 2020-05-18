@@ -47,14 +47,14 @@ namespace EventManager.Events
             {
                 if (nowNerd)
                 {
-                    player.ChangeRole(Smod2.API.Role.SCIENTIST);
-                    player.GiveItem(Smod2.API.ItemType.GUNUSP);
+                    player.ChangeRole(Smod2.API.RoleType.SCIENTIST);
+                    player.GiveItem(Smod2.API.ItemType.USP);
                 }
                 else
                 {
-                    player.ChangeRole(Smod2.API.Role.CLASSD);
+                    player.ChangeRole(Smod2.API.RoleType.CLASSD);
                     player.GiveItem(Smod2.API.ItemType.MEDKIT);
-                    player.GiveItem(Smod2.API.ItemType.GUNUSP);
+                    player.GiveItem(Smod2.API.ItemType.USP);
                 }
                 nowNerd = !nowNerd;
             }

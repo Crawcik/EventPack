@@ -1,9 +1,11 @@
 ﻿using EventManager.Events;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Smod2;
 using Smod2.Attributes;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace EventManager
 {
@@ -16,12 +18,22 @@ namespace EventManager
     langFile = "event",
     name = "Events Pack",
     SmodMajor = 3,
-    SmodMinor = 8,
+    SmodMinor = 7,
     SmodRevision = 0,
-    version = "2.9")]
+    version = "2.10")]
     public class PluginHandler : Plugin
     {
         public static PluginHandler Shared { private set; get; }
+        private JObject config;
+        public string PluginDirectory
+        {
+            get
+            {
+                string codeBase = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
+                System.UriBuilder uri = new System.UriBuilder(codeBase);
+                return Path.GetDirectoryName(System.Uri.UnescapeDataString(uri.Path)) + $"/{this.Details.name}";
+            }
+        }
 
         private CommandHandler commands;
         public Dictionary<string, IDictionary<string, string>> AllTranslations;
@@ -94,6 +106,17 @@ namespace EventManager
 
         public override void Register()
         {
+            if (!Directory.Exists(PluginDirectory))
+            {
+                Directory.CreateDirectory(PluginDirectory);
+                File.Create(PluginDirectory + "/translation.json");
+                File.WriteAllText(PluginDirectory + "/translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
+                config = JObject.FromObject(DefaultTranslations);
+            }
+            else
+            {
+                config = JObject.Parse(File.ReadAllText(PluginDirectory + "/translation.json", Encoding.Unicode));
+            }
             Shared = this;
             commands = new CommandHandler();
             AddEventHandlers(commands);
@@ -117,7 +140,7 @@ namespace EventManager
         private Dictionary<string, IDictionary<string, string>> GenerateConfig()
         {
             //Saving config
-            File.WriteAllText(this.PluginDirectory + $"/servers/{this.Server.Port}/config.json", JsonConvert.SerializeObject(DefaultTranslations), System.Text.Encoding.Unicode);
+            File.WriteAllText(this.PluginDirectory + "/translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
             return DefaultTranslations;
         }
     }

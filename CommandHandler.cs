@@ -11,7 +11,6 @@ namespace EventManager.Events
 {
     public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd, IEventHandlerRoundStart
     {
-        Dictionary<string, bool> user_quered = new Dictionary<string, bool>();
         private bool once_event = false, round_ongoing = false;
         private string queue_event = null;
         public List<Event> Commands { get; } = new List<Event>();
@@ -40,8 +39,6 @@ namespace EventManager.Events
             string command = null ;
             string arg = null;
 
-            if (ev.Admin.Permissions <= 0)
-                return;
             try
             {
                 command = ev.Query.Split(' ')[0];
@@ -49,27 +46,8 @@ namespace EventManager.Events
             }
             catch
             {}
-
-            if (ev.Admin.Permissions < 3)
-            {
-                if (! this.user_quered.ContainsKey(ev.Admin.UserId) )
-                {
-                    if (this.user_quered[ev.Admin.UserId] == true)
-                        arg = "once";
-                    else
-                        return;
-                }
-                else
-                {
-                    this.user_quered.Add(ev.Admin.UserId, true);
-                    arg = "once";
-                }
-            }
-            else
-            { 
-                if (arg == null)
-                    arg = "once";
-            }
+            if (arg == null)
+                arg = "once";
 
             Event commandh = Commands.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
@@ -94,18 +72,8 @@ namespace EventManager.Events
                     }
                     ev.Output = "Check Console";
                     ev.Successful = true;
-                    if(ev.Admin.Permissions < 3)
-                        if (this.user_quered[ev.Admin.UserId] == true)
-                            GetTime(ev.Admin.UserId).GetAwaiter();
                 }
             }
-        }
-
-        public async Task GetTime(string userId)
-        {
-            this.user_quered[userId] = false;
-            await Task.Delay(TimeSpan.FromHours(2));
-            this.user_quered[userId] = true;
         }
 
         public void OnRoundEnd(RoundEndEvent ev)

@@ -53,10 +53,10 @@ namespace EventManager.Events
                     most_points = QueuePoints[player.UserId];
                 }
                 QueuePoints[player.UserId]++;
-                player.ChangeRole(Smod2.API.Role.NTF_LIEUTENANT);
+                player.ChangeRole(Smod2.API.RoleType.NTF_LIEUTENANT);
                 player.GetInventory().ForEach(x => x.Remove());
-                player.GiveItem(Smod2.API.ItemType.GUNE11SR);
-                player.GiveItem(Smod2.API.ItemType.GRENADEFRAG);
+                player.GiveItem(Smod2.API.ItemType.GUN_E11_SR);
+                player.GiveItem(Smod2.API.ItemType.GRENADE_FRAG);
                 player.GiveItem(Smod2.API.ItemType.ADRENALINE);
                 player.SetAmmo(AmmoType.DROPPED_5, 1000);
             });
@@ -81,7 +81,7 @@ namespace EventManager.Events
             }
             else
             {
-                if (boss.player.TeamRole.Role != Smod2.API.Role.CHAOS_INSURGENCY)
+                if (boss.player.TeamRole.Role != Smod2.API.RoleType.CHAOS_INSURGENCY)
                 {
                     boss.EndTask();
                     boss = null;
@@ -93,8 +93,8 @@ namespace EventManager.Events
         {
             if (!isQueue)
                 return;
-            if (ev.Player.TeamRole.Role == Smod2.API.Role.CLASSD)
-                ev.Player.ChangeRole(Smod2.API.Role.SPECTATOR);
+            if (ev.Player.TeamRole.Role == Smod2.API.RoleType.CLASSD)
+                ev.Player.ChangeRole(Smod2.API.RoleType.SPECTATOR);
         }
 
         public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
@@ -120,7 +120,7 @@ namespace EventManager.Events
                 this.role = _class;
                 this.player = player;
                 this.ActiveAbbilities = new List<Abbility>() { Abbility.RAGE, Abbility.TAUNT, Abbility.SPECIAL };
-                this.player.ChangeRole(Smod2.API.Role.CHAOS_INSURGENCY);
+                this.player.ChangeRole(Smod2.API.RoleType.CHAOS_INSURGENCY);
                 Handle().GetAwaiter();
                 SetNormalInventory();
             }
@@ -138,11 +138,11 @@ namespace EventManager.Events
                     switch ((int)player.GetCurrentItem().ItemType)
                     {
                         case (int)Abbility.RAGE:
-                            int hp = player.GetHealth();
+                            float hp = player.GetHealth();
                             Vector vector = this.player.GetPosition();
                             ActiveAbbilities.Remove(Abbility.RAGE);
                             await Task.Delay(50);
-                            this.player.ChangeRole(Smod2.API.Role.SCP_096);
+                            this.player.ChangeRole(Smod2.API.RoleType.SCP_096);
                             await Task.Delay(50);
                             this.player.Teleport(vector);
                             this.player.SetHealth(hp);
@@ -150,7 +150,7 @@ namespace EventManager.Events
                             vector = this.player.GetPosition();
                             hp = player.GetHealth();
                             await Task.Delay(50);
-                            this.player.ChangeRole(Smod2.API.Role.CHAOS_INSURGENCY);
+                            this.player.ChangeRole(Smod2.API.RoleType.CHAOS_INSURGENCY);
                             await Task.Delay(50);
                             this.player.Teleport(vector);
                             this.player.SetHealth(hp);
@@ -159,7 +159,7 @@ namespace EventManager.Events
                         case (int)Abbility.TAUNT:
                             PluginHandler.Shared.Server.Map.Shake();
                             ActiveAbbilities.Remove(Abbility.TAUNT);
-                            PluginHandler.Shared.Server.GetPlayers(Smod2.API.Role.NTF_LIEUTENANT).ForEach(x => x.GetInventory().ForEach(y => y.Drop()));
+                            PluginHandler.Shared.Server.GetPlayers(Smod2.API.RoleType.NTF_LIEUTENANT).ForEach(x => x.GetInventory().ForEach(y => y.Drop()));
                             SetNormalInventory();
                             break;
                         case (int)Abbility.SPECIAL:
@@ -167,8 +167,8 @@ namespace EventManager.Events
                             SpecialAbbility().Start();
                             SpecialAbbility().Wait();
                             break;
-                        case (int)Smod2.API.ItemType.GUNE11SR:
-                            player.GetInventory().Find(x => x.ItemType == Smod2.API.ItemType.GUNE11SR).Drop();
+                        case (int)Smod2.API.ItemType.GUN_E11_SR:
+                            player.GetInventory().Find(x => x.ItemType == Smod2.API.ItemType.GUN_E11_SR).Drop();
                             break;
                         
                     }
@@ -183,17 +183,17 @@ namespace EventManager.Events
                     case Class.SAXTON:
                         this.player.GetInventory().ForEach(x => x.Remove());
                         player.SetGodmode(true);
-                        player.GiveItem(Smod2.API.ItemType.GUNLOGICER);
+                        player.GiveItem(Smod2.API.ItemType.LOGICER);
                         await Task.Delay(100);
-                        player.SetCurrentItem(Smod2.API.ItemType.GUNLOGICER);
+                        player.SetCurrentItem(Smod2.API.ItemType.LOGICER);
                         await Task.Delay(10000);
                         player.SetGodmode(false);
                         SetNormalInventory();
                         break;
                     case Class.RIPPER:
                         Vector vector = this.player.GetPosition();
-                        PluginHandler.Shared.Server.GetPlayers(Smod2.API.Role.SPECTATOR).ForEach(x => {
-                            x.ChangeRole(Smod2.API.Role.ZOMBIE);
+                        PluginHandler.Shared.Server.GetPlayers(Smod2.API.RoleType.SPECTATOR).ForEach(x => {
+                            x.ChangeRole(Smod2.API.RoleType.ZOMBIE);
                             x.Teleport(vector);
                         });
                         break;
@@ -209,9 +209,9 @@ namespace EventManager.Events
             private void SetNormalInventory() {
                 this.player.GetInventory().ForEach(x => x.Remove());
                 ActiveAbbilities.ForEach(x => player.GiveItem((Smod2.API.ItemType)x));
-                player.GiveItem(Smod2.API.ItemType.GUNUSP);
+                player.GiveItem(Smod2.API.ItemType.USP);
                 this.player.SetAmmo(AmmoType.DROPPED_9, 1000);
-                this.player.SetCurrentItem(Smod2.API.ItemType.GUNUSP);
+                this.player.SetCurrentItem(Smod2.API.ItemType.USP);
             }
 
             public enum Class
@@ -223,9 +223,9 @@ namespace EventManager.Events
 
             public enum Abbility
             {
-                RAGE = Smod2.API.ItemType.KEYCARDJANITOR,
-                TAUNT = Smod2.API.ItemType.KEYCARDNTFCOMMANDER,
-                SPECIAL = Smod2.API.ItemType.KEYCARDO5
+                RAGE = Smod2.API.ItemType.KEYCARD_JANITOR,
+                TAUNT = Smod2.API.ItemType.KEYCARD_NTF_COMMANDER,
+                SPECIAL = Smod2.API.ItemType.KEYCARD_O5
             }
         }
     }
