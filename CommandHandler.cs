@@ -33,7 +33,7 @@ namespace EventManager.Events
         {
             if (!string.IsNullOrEmpty(queue_event))
             {
-                ev.Admin.PersonalBroadcast(7, "Obecnie event jest w poczekalni, spróbuj w następnej rundzie", false);
+                //ev.Admin.PersonalBroadcast(7, "Obecnie event jest w poczekalni, spróbuj w następnej rundzie", false);
                 return;
             }
             string command = null ;
@@ -55,7 +55,7 @@ namespace EventManager.Events
                 if (commandh.GetCommandType() == ConsoleType.RA)
                 {
                     ev.Handled = true;
-                    ev.Admin.SendConsoleMessage($"[{commandh.GetName()}] Tryb jest {arg}" + Environment.NewLine);
+                    //ev.Admin.SendConsoleMessage($"[{commandh.GetName()}] Tryb jest {arg}" + Environment.NewLine);
                     if (arg == "on")
                         commandh.isQueue = true;
                     else if (arg == "off")
@@ -64,7 +64,7 @@ namespace EventManager.Events
                     {
                         if (round_ongoing) {
                             queue_event = commandh.GetName();
-                            ev.Admin.PersonalBroadcast(7, "Event odbędzie się w następnej rundzie", false);
+                            //ev.Admin.PersonalBroadcast(7, "Event odbędzie się w następnej rundzie", false);
                         }
                         else
                             commandh.isQueue = true;

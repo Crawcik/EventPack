@@ -65,6 +65,7 @@
     <Compile Include="Events\Saxton Hale.cs" />
     <Compile Include="Events\TTT.cs" />
     <Compile Include="Events\Versus.cs" />
+    <Compile Include="Pipe.cs" />
     <Compile Include="PluginHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

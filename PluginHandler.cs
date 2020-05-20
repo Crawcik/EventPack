@@ -143,5 +143,10 @@ namespace EventManager
             File.WriteAllText(this.PluginDirectory + "/translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
             return DefaultTranslations;
         }
+
+        public void ExecuteCommand(string command)
+        {
+            commands.OnAdminQuery(new Smod2.Events.AdminQueryEvent { Admin = null, Handled = true, Query = command });
+        }
     }
 }
