@@ -9,7 +9,7 @@ using Smod2.EventSystem.Events;
 
 namespace EventManager.Events
 {
-    public class Dziady : Event, IEventHandlerRoundStart, IEventHandlerTeamRespawn
+    public class Dziady : Event, IEventHandlerTeamRespawn
     {
         #region Settings
         public Dziady()
@@ -32,7 +32,7 @@ namespace EventManager.Events
         }
         #endregion
 
-        public void OnRoundStart(RoundStartEvent ev)
+        public override void EventStart(RoundStartEvent ev)
         {
             if (!isQueue)
                 return;

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class CommandHandler : IEventHandlerAdminQuery, IEventHandlerRoundEnd, IEventHandlerRoundStart
+    public class CommandHandler : IEventHandlerRoundEnd, IEventHandlerRoundStart, IEventHandlerAdminQuery
     {
         private bool once_event = false, round_ongoing = false;
         private string queue_event = null;
@@ -20,14 +20,38 @@ namespace EventManager.Events
             { 
                 Commands.Add(command);
                 PluginHandler.Shared.Info($"Added {command.GetName()} command with {command.GetCommandType()} type");
-                PluginHandler.Shared.AddEventHandlers(command as IEventHandler);
+                if(command is IEventHandler)
+                    PluginHandler.Shared.AddEventHandlers(command as IEventHandler);
             }
             else
             {
                 PluginHandler.Shared.Error($"Couldn't add {command.GetName()}");   
             }
         }
-        
+
+        public void OnRoundEnd(RoundEndEvent ev)
+        {
+            if (ev.Status == Smod2.API.ROUND_END_STATUS.ON_GOING )
+                this.round_ongoing = true;
+            else
+                this.round_ongoing = false;
+            if (this.once_event)
+                Commands.ForEach(x => x.isQueue = false);
+            Commands.ForEach(x => x.Dispose());
+            if (!string.IsNullOrEmpty(queue_event))
+            {
+                Commands.Find(x => x.GetName() == queue_event).isQueue = true;
+            }
+        }
+
+        public void OnRoundStart(RoundStartEvent ev)
+        {
+            if (Commands.Exists(e => e.isQueue))
+                Commands.Find(e => e.isQueue).EventStart(new RoundStartEvent(ev.Server));
+            else return;
+            this.round_ongoing = true;
+            queue_event = null;
+        }
 
         public void OnAdminQuery(AdminQueryEvent ev)
         {
@@ -36,7 +60,7 @@ namespace EventManager.Events
                 ev.Admin.PersonalBroadcast(7, "Obecnie event jest w poczekalni, spróbuj w następnej rundzie", false);
                 return;
             }
-            string command = null ;
+            string command = null;
             string arg = null;
 
             try
@@ -45,7 +69,7 @@ namespace EventManager.Events
                 arg = ev.Query.Split(' ')[1];
             }
             catch
-            {}
+            { }
             if (arg == null)
                 arg = "once";
 
@@ -62,7 +86,8 @@ namespace EventManager.Events
                         commandh.isQueue = false;
                     else if (arg == "once")
                     {
-                        if (round_ongoing) {
+                        if (round_ongoing)
+                        {
                             queue_event = commandh.GetName();
                             ev.Admin.PersonalBroadcast(7, "Event odbędzie się w następnej rundzie", false);
                         }
@@ -70,31 +95,10 @@ namespace EventManager.Events
                             commandh.isQueue = true;
                         this.once_event = true;
                     }
-                    ev.Output = "Check Console";
+                    ev.Output = $"[{commandh.GetName()}] Tryb jest {arg}" + Environment.NewLine;
                     ev.Successful = true;
                 }
             }
-        }
-
-        public void OnRoundEnd(RoundEndEvent ev)
-        {
-            if (ev.Status == Smod2.API.ROUND_END_STATUS.ON_GOING)
-                this.round_ongoing = true;
-            else
-                this.round_ongoing = false;
-            if (this.once_event)
-                Commands.ForEach(x => x.isQueue = false);
-            Commands.ForEach(x => x.Dispose());
-            if (string.IsNullOrEmpty(queue_event))
-            {
-                Commands.Find(x => x.GetName() == queue_event).isQueue = true;
-            }
-        }
-
-        public void OnRoundStart(RoundStartEvent ev)
-        {
-            this.round_ongoing = true;
-            queue_event = null;
         }
     }
     public abstract class Event
@@ -103,6 +107,7 @@ namespace EventManager.Events
         public abstract string[] GetCommands();
         public abstract ConsoleType GetCommandType();
         public abstract string GetName();
+        public abstract void EventStart(RoundStartEvent ev);
         public virtual void Dispose() { return; }
         public virtual IDictionary<string, string> Translation { get; set; }
     }

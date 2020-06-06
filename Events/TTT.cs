@@ -11,10 +11,10 @@ using System.Linq;
 
 namespace EventManager.Events
 {
-    public class TTT : Event, IEventHandlerRoundStart,
+    public class TTT : Event,
         IEventHandlerCheckRoundEnd,
         IEventHandlerPlayerDie,
-        IEventHandlerDecideTeamRespawnQueue,
+        IEventHandlerDecideTeamRespawnQueue
         IEventHandlerPlayerDropItem,
         IEventHandlerLCZDecontaminate,
         IEventHandlerHandcuffed, IEventHandlerPlayerLeave
@@ -48,7 +48,7 @@ namespace EventManager.Events
         }
         #endregion
 
-        public void OnRoundStart(RoundStartEvent ev)
+        public override void EventStart(RoundStartEvent ev)
         {
             if (!isQueue)
                 return;
@@ -166,12 +166,6 @@ namespace EventManager.Events
             alives.Find(x => x.Player.UserId == ev.Player.UserId).EndTasks();
         }
 
-        public void OnTeamRespawn(TeamRespawnEvent ev) {
-            if (!isQueue)
-                return;
-            ev.PlayerList.ForEach(x => x.ChangeRole(Smod2.API.RoleType.SPECTATOR));
-        }
-
         public void OnPlayerDropItem(PlayerDropItemEvent ev)
         {
             if (!isQueue)
@@ -190,12 +184,9 @@ namespace EventManager.Events
 
         public void OnDecontaminate()
         {
+            if (!isQueue)
+                return;
             alives.FindAll(x => x.Rola == Klasy.ZDRAJCA).ForEach(x => x.EndTasks());
-        }
-
-        public void OnDecideTeamRespawnQueue(DecideRespawnQueueEvent ev)
-        {
-            ev.Teams = null;
         }
 
         public void OnHandcuffed(PlayerHandcuffedEvent ev)
@@ -215,6 +206,8 @@ namespace EventManager.Events
 
         public void OnPlayerLeave(PlayerLeaveEvent ev)
         {
+            if (!isQueue)
+                return;
             try
             {
                 alives.Find(x => x.Player.PlayerId == ev.Player.PlayerId).EndTasks();
@@ -222,6 +215,18 @@ namespace EventManager.Events
             catch {
             
             }
+        }
+
+        public void OnDecideTeamRespawnQueue(DecideRespawnQueueEvent ev)
+        {
+            if (!isQueue)
+                return;
+            List<TeamType> teams = ev.Teams.ToList();
+            if(teams.Contains(TeamType.CHAOS_INSURGENCY))
+                teams.Remove(TeamType.CHAOS_INSURGENCY);
+            if (teams.Contains(TeamType.NINETAILFOX))
+                teams.Remove(TeamType.NINETAILFOX);
+            ev.Teams = teams.ToArray();
         }
 
         private enum Klasy

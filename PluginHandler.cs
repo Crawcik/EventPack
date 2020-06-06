@@ -31,7 +31,7 @@ namespace EventManager
             {
                 string codeBase = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
                 System.UriBuilder uri = new System.UriBuilder(codeBase);
-                return Path.GetDirectoryName(System.Uri.UnescapeDataString(uri.Path)) + $"/{this.Details.name}";
+                return Path.GetDirectoryName(System.Uri.UnescapeDataString(uri.Path)) + $"{Path.DirectorySeparatorChar}{this.Details.name}";
             }
         }
 
@@ -109,13 +109,13 @@ namespace EventManager
             if (!Directory.Exists(PluginDirectory))
             {
                 Directory.CreateDirectory(PluginDirectory);
-                File.Create(PluginDirectory + "/translation.json");
-                File.WriteAllText(PluginDirectory + "/translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
+                File.Create(PluginDirectory + Path.DirectorySeparatorChar +"translation.json");
+                File.WriteAllText(PluginDirectory + Path.DirectorySeparatorChar + "translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
                 config = JObject.FromObject(DefaultTranslations);
             }
             else
             {
-                config = JObject.Parse(File.ReadAllText(PluginDirectory + "/translation.json", Encoding.Unicode));
+                config = JObject.Parse(File.ReadAllText(PluginDirectory + Path.DirectorySeparatorChar + "translation.json", Encoding.Unicode));
             }
             Shared = this;
             commands = new CommandHandler();
@@ -140,7 +140,7 @@ namespace EventManager
         private Dictionary<string, IDictionary<string, string>> GenerateConfig()
         {
             //Saving config
-            File.WriteAllText(this.PluginDirectory + "/translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
+            File.WriteAllText(this.PluginDirectory + Path.DirectorySeparatorChar + "translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
             return DefaultTranslations;
         }
 

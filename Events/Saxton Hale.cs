@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class Saxton_Hale : Event, IEventHandlerRoundStart, IEventHandlerCheckRoundEnd, IEventHandlerSpawn, IEventHandlerWaitingForPlayers
+    public class Saxton_Hale : Event, IEventHandlerCheckRoundEnd, IEventHandlerSpawn, IEventHandlerWaitingForPlayers
     {
         public Dictionary<string, int> QueuePoints = new Dictionary<string, int>();
         private Boss boss = null;
@@ -34,7 +34,7 @@ namespace EventManager.Events
         }
         #endregion
 
-        public void OnRoundStart(RoundStartEvent ev)
+        public override void EventStart(RoundStartEvent ev)
         {
             if (!isQueue)
                 return;

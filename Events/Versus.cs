@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace EventManager.Events
 {
-    class Versus : Event, IEventHandlerRoundStart
+    class Versus : Event
     {
         #region Settings
         public Versus()
@@ -32,7 +32,7 @@ namespace EventManager.Events
             return "Versus";
         }
         #endregion
-        public void OnRoundStart(RoundStartEvent ev)
+        public override void EventStart(RoundStartEvent ev)
         {
             if (!isQueue)
                 return;
