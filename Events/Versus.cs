@@ -19,12 +19,7 @@ namespace EventManager.Events
 
         public override string[] GetCommands()
         {
-            return new string[] { "event_versus" };
-        }
-
-        public override ConsoleType GetCommandType()
-        {
-            return ConsoleType.RA;
+            return new string[] { "versus" };
         }
 
         public override string GetName()

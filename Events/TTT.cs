@@ -14,7 +14,7 @@ namespace EventManager.Events
     public class TTT : Event,
         IEventHandlerCheckRoundEnd,
         IEventHandlerPlayerDie,
-        IEventHandlerDecideTeamRespawnQueue
+        IEventHandlerDecideTeamRespawnQueue,
         IEventHandlerPlayerDropItem,
         IEventHandlerLCZDecontaminate,
         IEventHandlerHandcuffed, IEventHandlerPlayerLeave
@@ -34,12 +34,7 @@ namespace EventManager.Events
         }
         public override string[] GetCommands()
         {
-            return new string[] { "event_ttt" };
-        }
-
-        public override ConsoleType GetCommandType()
-        {
-            return ConsoleType.RA;
+            return new string[] { "ttt" };
         }
 
         public override string GetName()
@@ -78,7 +73,7 @@ namespace EventManager.Events
                 }
 
             }
-            for (int i = -1; i < players.Length / 20; i++)
+            for (int i = 0; i <= players.Length / 20; i++)
             {
                 while (true)
                 {

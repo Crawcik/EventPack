@@ -20,12 +20,7 @@ namespace EventManager.Events
 
         public override string[] GetCommands()
         {
-            return new[] { "event_hale", "event_saxton", "event_saxtonhale" };
-        }
-
-        public override ConsoleType GetCommandType()
-        {
-            return ConsoleType.RA;
+            return new[] { "hale", "saxton", "saxtonhale" };
         }
 
         public override string GetName()

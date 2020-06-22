@@ -1,4 +1,5 @@
-﻿using Smod2.Commands;
+﻿using Smod2.API;
+using Smod2.Commands;
 using Smod2.EventHandlers;
 using Smod2.Events;
 
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class CommandHandler : IEventHandlerRoundEnd, IEventHandlerRoundStart, IEventHandlerAdminQuery
+    public class CommandHandler : IEventHandlerRoundEnd, IEventHandlerRoundStart, ICommandHandler
     {
         private bool once_event = false, round_ongoing = false;
         private string queue_event = null;
@@ -19,7 +20,7 @@ namespace EventManager.Events
             if (Commands.Find(x => x.GetName() == command.GetName() || Array.Exists(command.GetCommands(), y => x.GetCommands().Contains(y))) == null)
             { 
                 Commands.Add(command);
-                PluginHandler.Shared.Info($"Added {command.GetName()} command with {command.GetCommandType()} type");
+                PluginHandler.Shared.Info($"Added {command.GetName()} event");
                 if(command is IEventHandler)
                     PluginHandler.Shared.AddEventHandlers(command as IEventHandler);
             }
@@ -53,69 +54,65 @@ namespace EventManager.Events
             queue_event = null;
         }
 
-        public void OnAdminQuery(AdminQueryEvent ev)
+        public string[] OnCall(ICommandSender sender, string[] args)
         {
             if (!string.IsNullOrEmpty(queue_event))
             {
-                ev.Admin.PersonalBroadcast(7, "Obecnie event jest w poczekalni, spróbuj w następnej rundzie", false);
-                return;
+                return new string[] { "Obecnie event jest w poczekalni, spróbuj w następnej rundzie" };
             }
-            string command = null;
-            string arg = null;
+
+            string command = "";
+            string arg = "";
 
             try
             {
-                command = ev.Query.Split(' ')[0];
-                arg = ev.Query.Split(' ')[1];
+                command = args[0];
+                if(arg.Length == 2)
+                    arg = args[1];
             }
-            catch
-            { }
-            if (arg == null)
+            catch (Exception exp)
+            {
+                return new string[] { "Command is incorrect: ", exp.ToString() };
+            }
+            if (arg == "")
                 arg = "once";
 
             Event commandh = Commands.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
-                if (commandh.GetCommandType() == ConsoleType.RA)
+                if (arg == "on")
+                    commandh.isQueue = true;
+                else if (arg == "off")
+                    commandh.isQueue = false;
+                else if (arg == "once")
                 {
-                    ev.Handled = true;
-                    ev.Admin.SendConsoleMessage($"[{commandh.GetName()}] Tryb jest {arg}" + Environment.NewLine);
-                    if (arg == "on")
-                        commandh.isQueue = true;
-                    else if (arg == "off")
-                        commandh.isQueue = false;
-                    else if (arg == "once")
+                    if (round_ongoing)
                     {
-                        if (round_ongoing)
-                        {
-                            queue_event = commandh.GetName();
-                            ev.Admin.PersonalBroadcast(7, "Event odbędzie się w następnej rundzie", false);
-                        }
-                        else
-                            commandh.isQueue = true;
-                        this.once_event = true;
+                        queue_event = commandh.GetName();
+                        return new string[] { "Event will be runned in next round" };
                     }
-                    ev.Output = $"[{commandh.GetName()}] Tryb jest {arg}" + Environment.NewLine;
-                    ev.Successful = true;
+                    else
+                        commandh.isQueue = true;
+                    this.once_event = true;
                 }
             }
+            else return new string[] { $"This event doesn't exist!" };
+            return new string[] { $"[{commandh.GetName()}] Event is {arg}" };
         }
+
+
+        public string GetUsage() => "event <gamemode> <on/off/once>";
+
+
+        public string GetCommandDescription() => "Runs events/gamemodes";
     }
     public abstract class Event
     {
         public bool isQueue = false;
         public abstract string[] GetCommands();
-        public abstract ConsoleType GetCommandType();
         public abstract string GetName();
         public abstract void EventStart(RoundStartEvent ev);
         public virtual void Dispose() { return; }
         public virtual IDictionary<string, string> Translation { get; set; }
-    }
-
-    public enum ConsoleType
-    {
-        RA = 1,
-        Client = 2,
-        Server = 4
     }
 }

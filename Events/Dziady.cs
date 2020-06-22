@@ -21,11 +21,6 @@ namespace EventManager.Events
             return new string[] { "event_dziady" };
         }
 
-        public override ConsoleType GetCommandType()
-        {
-            return ConsoleType.RA;
-        }
-
         public override string GetName()
         {
             return "Dziady";

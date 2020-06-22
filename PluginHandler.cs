@@ -102,6 +102,7 @@ namespace EventManager
             commands.RegisterCommand(new Dziady());
             commands.RegisterCommand(new TTT());
             commands.RegisterCommand(new Saxton_Hale());
+            //commands.RegisterCommand(new AlienBreakout());
         }
 
         public override void Register()
@@ -109,17 +110,22 @@ namespace EventManager
             if (!Directory.Exists(PluginDirectory))
             {
                 Directory.CreateDirectory(PluginDirectory);
-                File.Create(PluginDirectory + Path.DirectorySeparatorChar +"translation.json");
-                File.WriteAllText(PluginDirectory + Path.DirectorySeparatorChar + "translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
+            }
+            if (!File.Exists(PluginDirectory + Path.DirectorySeparatorChar + "translation.json"))
+            {
+                File.Create(PluginDirectory + Path.DirectorySeparatorChar + "translation.json");
+                File.WriteAllText(PluginDirectory + Path.DirectorySeparatorChar + "translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.UTF8);
                 config = JObject.FromObject(DefaultTranslations);
             }
             else
             {
-                config = JObject.Parse(File.ReadAllText(PluginDirectory + Path.DirectorySeparatorChar + "translation.json", Encoding.Unicode));
+                string json = File.ReadAllText(PluginDirectory + Path.DirectorySeparatorChar + "translation.json", Encoding.UTF8);
+                config = JObject.Parse(json);
             }
             Shared = this;
             commands = new CommandHandler();
             AddEventHandlers(commands);
+            AddCommand("event", commands);
         }
 
         private bool IsConfigCorrect()
@@ -140,13 +146,13 @@ namespace EventManager
         private Dictionary<string, IDictionary<string, string>> GenerateConfig()
         {
             //Saving config
-            File.WriteAllText(this.PluginDirectory + Path.DirectorySeparatorChar + "translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.Unicode);
+            File.WriteAllText(this.PluginDirectory + Path.DirectorySeparatorChar + "translation.json", JsonConvert.SerializeObject(DefaultTranslations), Encoding.UTF8);
             return DefaultTranslations;
         }
 
         public void ExecuteCommand(string command)
         {
-            commands.OnAdminQuery(new Smod2.Events.AdminQueryEvent { Admin = null, Handled = true, Query = command });
+            commands.OnCall(this.Server, command.Split(' '));
         }
     }
 }

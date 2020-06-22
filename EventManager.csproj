@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandler.cs" />
+    <Compile Include="Events\AlienBreakout.cs" />
     <Compile Include="Events\Dziady.cs" />
     <Compile Include="Events\Saxton Hale.cs" />
     <Compile Include="Events\TTT.cs" />
