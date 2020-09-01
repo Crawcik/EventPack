@@ -18,7 +18,7 @@ namespace EventManager.Events
         }
         public override string[] GetCommands()
         {
-            return new string[] { "event_dziady" };
+            return new string[] { "dziady" };
         }
 
         public override string GetName()
