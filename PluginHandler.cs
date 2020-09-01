@@ -18,9 +18,9 @@ namespace EventManager
     langFile = "event",
     name = "Events Pack",
     SmodMajor = 3,
-    SmodMinor = 7,
-    SmodRevision = 0,
-    version = "2.10")]
+    SmodMinor = 8,
+    SmodRevision = 4,
+    version = "3.0")]
     public class PluginHandler : Plugin
     {
         public static PluginHandler Shared { private set; get; }
@@ -103,6 +103,7 @@ namespace EventManager
             commands.RegisterCommand(new TTT());
             commands.RegisterCommand(new Saxton_Hale());
             //commands.RegisterCommand(new AlienBreakout());
+            commands.RegisterCommand(new PropHunt());
         }
 
         public override void Register()

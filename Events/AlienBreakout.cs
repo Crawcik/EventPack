@@ -1,7 +1,5 @@
-﻿using GameCore;
-using Smod2.API;
+﻿using Smod2.API;
 using Smod2.Events;
-using System.Linq;
 
 namespace EventManager.Events
 {

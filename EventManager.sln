@@ -7,12 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventManager", "EventManage
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
+		Export|Any CPU = Export|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D41886F4-410F-4412-B476-9DEF122052DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D41886F4-410F-4412-B476-9DEF122052DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D41886F4-410F-4412-B476-9DEF122052DB}.Export|Any CPU.ActiveCfg = Export|Any CPU
+		{D41886F4-410F-4412-B476-9DEF122052DB}.Export|Any CPU.Build.0 = Export|Any CPU
 		{D41886F4-410F-4412-B476-9DEF122052DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D41886F4-410F-4412-B476-9DEF122052DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
