@@ -19,10 +19,11 @@ namespace EventManager.Events
         public void RegisterCommand(Event command)
         {
             if (Commands.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y=>x.GetCommands().Contains(y))) == null)
-            { 
-                Commands.Add(command);
-                command.Translation = PluginHandler.Shared.AllTranslations[command.GetName()];
+            {
                 PluginHandler.Shared.Info($"Added {command.GetName()} event");
+                Commands.Add(command);
+                if (PluginHandler.Shared.AllTranslations.ContainsKey(command.GetName()))
+                    command.Translation = PluginHandler.Shared.AllTranslations[command.GetName()];
                 if(command is IEventHandler)
                     PluginHandler.Shared.AddEventHandlers(command as IEventHandler);
             }
