@@ -1,4 +1,5 @@
-﻿using Smod2.API;
+﻿using Smod2;
+using Smod2.API;
 using Smod2.Commands;
 using Smod2.EventHandlers;
 using Smod2.Events;
@@ -17,9 +18,10 @@ namespace EventManager.Events
         public List<Event> Commands { get; } = new List<Event>();
         public void RegisterCommand(Event command)
         {
-            if (Commands.Find(x => x.GetName() == command.GetName() || Array.Exists(command.GetCommands(), y => x.GetCommands().Contains(y))) == null)
+            if (Commands.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y=>x.GetCommands().Contains(y))) == null)
             { 
                 Commands.Add(command);
+                command.Translation = PluginHandler.Shared.AllTranslations[command.GetName()];
                 PluginHandler.Shared.Info($"Added {command.GetName()} event");
                 if(command is IEventHandler)
                     PluginHandler.Shared.AddEventHandlers(command as IEventHandler);
