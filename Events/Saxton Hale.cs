@@ -1,5 +1,4 @@
 ﻿using Smod2.API;
-using Smod2.Commands;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using System.Collections.Generic;
@@ -13,10 +12,6 @@ namespace EventManager.Events
         private Boss boss = null;
         public int boss_type_num = 0;
         #region Setting
-        public Saxton_Hale()
-        {
-            this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
-        }
 
         public override string[] GetCommands()
         {
@@ -72,7 +67,11 @@ namespace EventManager.Events
             if (ev.Status == ROUND_END_STATUS.ON_GOING)
             {
                 ev.Server.Map.ClearBroadcasts();
-                ev.Server.Map.Broadcast(2, boss.player.Name + " become " + boss.role.ToString() + " | Boss HP: " + boss.player.GetHealth(), false);
+                string message = Translation["hale_spawn"];
+                message.Replace("%nick%", boss.player.Name);
+                message.Replace("%class%", boss.role.ToString());
+                message.Replace("%hp%", boss.player.HP.ToString());
+                ev.Server.Map.Broadcast(2, message, false);
             }
             else
             {
@@ -133,7 +132,7 @@ namespace EventManager.Events
                     switch ((int)player.GetCurrentItem().ItemType)
                     {
                         case (int)Abbility.RAGE:
-                            float hp = player.GetHealth();
+                            float hp = player.HP;
                             Vector vector = this.player.GetPosition();
                             ActiveAbbilities.Remove(Abbility.RAGE);
                             await Task.Delay(50);
@@ -143,7 +142,7 @@ namespace EventManager.Events
                             this.player.SetHealth(hp);
                             await Task.Delay(17000);
                             vector = this.player.GetPosition();
-                            hp = player.GetHealth();
+                            hp = player.HP;
                             await Task.Delay(50);
                             this.player.ChangeRole(Smod2.API.RoleType.CHAOS_INSURGENCY);
                             await Task.Delay(50);

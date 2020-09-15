@@ -22,10 +22,6 @@ namespace EventManager.Events
         private Random random = new Random();
         private List<Alives> alives = new List<Alives>();
         #region Settings
-        public TTT()
-        {
-            this.Translation = PluginHandler.Shared.AllTranslations[GetName()];
-        }
         public override void Dispose()
         {
             alives.ForEach(x => x.EndTasks());
@@ -106,7 +102,7 @@ namespace EventManager.Events
                 }
             }
             Smod2.API.Door[] avalible_doors = doors.Where(door => !(door.Position.y > 20f || door.Name == "372" || door.Name == "CHECKPOINT_LCZ_A" || door.Name == "CHECKPOINT_LCZ_B")).OrderBy(x => random.Next()).ToArray();
-            List<Smod2.API.Door> taked_doors = new List<Smod2.API.Door>();
+            List<Door> taked_doors = new List<Door>();
             //Setting players posisions
             int index = 0;
             foreach (Player player in players)

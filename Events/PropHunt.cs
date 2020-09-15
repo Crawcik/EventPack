@@ -1,7 +1,7 @@
 ﻿using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
-
+using Smod2.EventSystem.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EventManager.Events
 {
-    public class PropHunt : Event, IEventHandlerPlayerPickupItem
+    public class PropHunt : Event, IEventHandlerPlayerPickupItem, IEventHandlerLCZDecontaminate, IEventHandlerTeamRespawn, IEventHandlerCassieTeamAnnouncement
     {
         public Dictionary<string, int> QueuePoints = new Dictionary<string, int>();
         Random random = new Random();
@@ -18,11 +18,10 @@ namespace EventManager.Events
         #region Settings
         public override void EventStart(RoundStartEvent ev)
         {
-
-            List<Smod2.API.Door> doors = ev.Server.Map.GetDoors();
+            List<Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_B").Locked = true;
-            foreach (Smod2.API.Door door in doors)
+            foreach (Door door in doors)
             {
                 Vector vec = door.Position;
                 int rng = random.Next(0, 6);
@@ -34,25 +33,30 @@ namespace EventManager.Events
                     Vector spanw_pos = new Vector(x, y, z);
 
                     Array values = Enum.GetValues(typeof(Props));
-                    Smod2.API.ItemType item = (Smod2.API.ItemType)values.GetValue(random.Next(values.Length));
+                    ItemType item = (ItemType)values.GetValue(random.Next(values.Length));
                     ev.Server.Map.SpawnItem(item, spanw_pos, Vector.Zero);
                 }
             }
             actualHunters = GetHunterId();
             foreach (Player player in ev.Server.GetPlayers())
             {
-                if (!actualHunters.Contains(player.PlayerId))
-                {
-                    player.ChangeRole(Smod2.API.RoleType.CLASSD);
-                    player.SetGhostMode(true, visibleWhenTalking: false);
-                    player.SetHealth(50);
-                    Array values = Enum.GetValues(typeof(Props));
-                    Smod2.API.ItemType itemtype = (Smod2.API.ItemType)values.GetValue(random.Next(values.Length));
-                    Smod2.API.Item item = ev.Server.Map.GetItems(itemtype, true)[0];
-                    tasks.Add(Follow(player, item));
-                }
+                if (actualHunters.Contains(player.PlayerId))
+                    continue;
+                player.ChangeRole(RoleType.CLASSD);
+                player.SetHealth(50);
+                player.PersonalBroadcast(30, Translation["props_spawn"], false);
+                Array values = Enum.GetValues(typeof(Props));
+                ItemType itemtype = (ItemType)values.GetValue(random.Next(values.Length));
+                Item item = ev.Server.Map.GetItems(itemtype, true)[0];
+                tasks.Add(Follow(player, item));
             }
             tasks.ForEach(x => x.GetAwaiter());
+            foreach (int index in actualHunters)
+            {
+                Player player = PluginHandler.Shared.Server.GetPlayer(index);
+                player.ChangeRole(RoleType.TUTORIAL);
+                player.PersonalBroadcast(30, Translation["hunters_wait"], false);
+            }
             HuntersWait().GetAwaiter();
         }
 
@@ -75,18 +79,14 @@ namespace EventManager.Events
         #endregion
         private async Task HuntersWait()
         {
-            foreach (int index in actualHunters)
-            {
-                Player player = PluginHandler.Shared.Server.GetPlayer(index);
-                player.ChangeRole(Smod2.API.RoleType.FACILITY_GUARD);
-                player.PersonalBroadcast(30, "Zaraz wkroczysz jako Hunter!", false);
-            }
             await Task.Delay(TimeSpan.FromSeconds(30));
-            Smod2.API.Door door = PluginHandler.Shared.Server.Map.GetDoors().Find(x => x.Name == "914");
+            Door door = PluginHandler.Shared.Server.Map.GetDoors().Find(x => x.Name == "914");
             door.Open = true;
             foreach (int index in actualHunters)
             {
                 Player player = PluginHandler.Shared.Server.GetPlayer(index);
+                player.ChangeRole(RoleType.SCP_939_53);
+                await Task.Delay(500);
                 player.Teleport(door.Position);
             }
 
@@ -94,7 +94,7 @@ namespace EventManager.Events
         private int[] GetHunterId()
         {
             List<int> nums = new List<int>();
-            for (int i = -1; i < PluginHandler.Shared.Server.GetPlayers().Count / 10; i++)
+            for (int i = 0; i <= PluginHandler.Shared.Server.GetPlayers().Count / 10; i++)
             {
                 Player most_player = null;
                 int most_points = 0;
@@ -115,9 +115,9 @@ namespace EventManager.Events
             return nums.ToArray();
         }
 
-        private async Task Follow(Player player, Smod2.API.Item item)
+        private async Task Follow(Player player, Item item)
         {
-            player.GiveItem(Smod2.API.ItemType.MEDKIT).Drop();
+            player.GiveItem(ItemType.MEDKIT).Drop();
             item.SetKinematic(false);
             while(true)
             {
@@ -136,7 +136,34 @@ namespace EventManager.Events
 
         public void OnPlayerPickupItem(PlayerPickupItemEvent ev)
         {
+            if (!isQueue)
+                return;
             ev.Item.Drop();
+        }
+
+        public void OnDecontaminate()
+        {
+            if (!isQueue)
+                return;
+            foreach (int index in actualHunters)
+            {
+                Player player = PluginHandler.Shared.Server.GetPlayer(index);
+                player.Kill();
+            }
+        }
+
+        public void OnTeamRespawn(TeamRespawnEvent ev)
+        {
+            if (!isQueue)
+                return;
+            ev.PlayerList.ForEach(x => x.ChangeRole(RoleType.SPECTATOR));
+        }
+
+        public void OnCassieTeamAnnouncement(CassieTeamAnnouncementEvent ev)
+        {
+            if (!isQueue)
+                return;
+            ev.Allow = false;
         }
 
         public enum Props

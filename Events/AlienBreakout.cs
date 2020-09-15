@@ -18,7 +18,7 @@ namespace EventManager.Events
         #endregion
         public override void EventStart(RoundStartEvent ev)
         {
-            
+            ev.Server.Map.OverchargeLights(20f, false);
         }
 
         private class PlayerExt
