@@ -68,9 +68,9 @@ namespace EventManager.Events
             {
                 ev.Server.Map.ClearBroadcasts();
                 string message = Translation["hale_spawn"];
-                message.Replace("%nick%", boss.player.Name);
-                message.Replace("%class%", boss.role.ToString());
-                message.Replace("%hp%", boss.player.HP.ToString());
+                message = message.Replace("%nick%", boss.player.Name);
+                message = message.Replace("%class%", boss.role.ToString());
+                message = message.Replace("%hp%", boss.player.HP.ToString());
                 ev.Server.Map.Broadcast(2, message, false);
             }
             else
