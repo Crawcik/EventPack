@@ -8,6 +8,7 @@ using Smod2.Attributes;
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace EventManager
@@ -142,15 +143,13 @@ namespace EventManager
 
         private bool IsConfigCorrect()
         {
-            if (AllTranslations.Keys != DefaultTranslations.Keys)
-                return false;
             foreach (string key in AllTranslations.Keys)
             {
                 if(!DefaultTranslations.ContainsKey(key))
                     return false;
-                foreach (KeyValuePair<string, string> pairs in DefaultTranslations[key])
+                foreach (KeyValuePair<string, string> pairs in AllTranslations[key])
                 {
-                    if (!AllTranslations[key].ContainsKey(pairs.Key))
+                    if (!DefaultTranslations[key].ContainsKey(pairs.Key))
                         return false;
                 }
             }
