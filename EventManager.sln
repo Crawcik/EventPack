@@ -1,25 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventManager", "EventManager.csproj", "{D41886F4-410F-4412-B476-9DEF122052DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventManager", "EventManager\EventManager.csproj", "{66F58DE6-E79E-4919-A960-42B5E7D4AF90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Export|Any CPU = Export|Any CPU
+		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D41886F4-410F-4412-B476-9DEF122052DB}.Export|Any CPU.ActiveCfg = Export|Any CPU
-		{D41886F4-410F-4412-B476-9DEF122052DB}.Export|Any CPU.Build.0 = Export|Any CPU
-		{D41886F4-410F-4412-B476-9DEF122052DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D41886F4-410F-4412-B476-9DEF122052DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {BB50A044-3BE2-4418-B2B4-D616325817F0}
+		SolutionGuid = {6B71045F-E8D7-4272-A08B-E0DF6BC1D650}
 	EndGlobalSection
 EndGlobal
