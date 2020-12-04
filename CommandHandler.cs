@@ -115,7 +115,7 @@ namespace EventManager.Events
         public abstract string[] GetCommands();
         public abstract string GetName();
         public abstract void EventStart(RoundStartEvent ev);
-        public virtual void Dispose() { return; }
+        public abstract void Dispose();
         public virtual IDictionary<string, string> Translation { get; set; }
     }
 }

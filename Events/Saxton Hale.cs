@@ -136,7 +136,7 @@ namespace EventManager.Events
                             Vector vector = this.player.GetPosition();
                             ActiveAbbilities.Remove(Abbility.RAGE);
                             await Task.Delay(50);
-                            this.player.ChangeRole(Smod2.API.RoleType.SCP_096);
+                            this.player.ChangeRole(Smod2.API.RoleType.SCP_096, spawnTeleport: false);
                             await Task.Delay(50);
                             this.player.Teleport(vector);
                             this.player.SetHealth(hp);
