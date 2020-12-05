@@ -10,7 +10,7 @@ namespace EventManager
     internal sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
     {
         private PluginHandler Plugin { get; }
-        public static IDictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
+        public static Dictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
         private GameEvent NextEvent { set; get; }
 
         private List<GameEvent> Commands;
@@ -24,14 +24,15 @@ namespace EventManager
             Commands = new List<GameEvent>();
         }
 
+
+
         public void RegisterCommand(GameEvent command)
         {
             if (Commands.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
             {
-                Plugin.Info($"Added {command.GetName()} event");
                 Commands.Add(command);
-                if (command is IEventHandler)
-                    Plugin.AddEventHandlers(command as IEventHandler);
+                command.Register();
+                Plugin.Info($"Added {command.GetName()} event");
             }
             else
             {
@@ -47,15 +48,21 @@ namespace EventManager
             {
                 eventOnGoing = false;
                 NextEvent.EventEnd(ev);
+                Plugin.EventManager.RemoveEventHandlers(Plugin);
                 if(autoStopEvent)
                     NextEvent = null;
+                Plugin.AddEventHandlers(this);
             }
         }
 
         public void OnRoundStart(RoundStartEvent ev)
         {
             if (NextEvent != null)
+            {
                 NextEvent.EventStart(ev);
+                if (NextEvent is IEventHandler)
+                    Plugin.AddEventHandlers(NextEvent as IEventHandler);
+            }
             else return;
             eventOnGoing = true;
         }

@@ -33,18 +33,20 @@ namespace EventManager
         private EventHandler eventHandler;
         public override void OnDisable()
         {
-
+            this.CommandManager.UnregisterCommands(this);
+            this.EventManager.RemoveEventHandlers(this);
         }
 
         public override void OnEnable()
         {
+            this.AddCommand("event", eventHandler);
+            this.AddEventHandlers(eventHandler);
             LoadTranslation();
         }
 
         public override void Register()
         {
             eventHandler = new EventHandler(this);
-
             string directory = PluginDirectory;
             if (Directory.Exists(directory))
             {
@@ -83,38 +85,37 @@ namespace EventManager
             string file = PluginDirectory + Path.DirectorySeparatorChar + translationFile;
             if (!File.Exists(file))
             {
-                File.Create(file);
-                string text = Newtonsoft.Json.JsonConvert.SerializeObject(eventHandler.GetAllDefaultTranslations());
-                File.WriteAllText(file, text);
-                return;
+                using (FileStream fs = File.Create(file))
+                {
+                    string text = Newtonsoft.Json.JsonConvert.SerializeObject(eventHandler.GetAllDefaultTranslations(), Newtonsoft.Json.Formatting.Indented);
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        byte[] info = new System.Text.UTF8Encoding(true).GetBytes(text);
+                        fs.Write(info, 0, info.Length);
+                    }
+                }
             }
             else
             {
-                IDictionary<string, IDictionary<string, string>> translations;
+                Dictionary<string, IDictionary<string, string>> translations;
                 bool file_override = false;
                 string text = File.ReadAllText(file);
-                try
+                translations = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(text);
+                EventHandler.AllTranslations = translations;
+                this.Info($"Translation loaded");
+                var default_translations = eventHandler.GetAllDefaultTranslations();
+                foreach (string def_translation in default_translations.Keys)
                 {
-                    translations = Newtonsoft.Json.JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, string>>>(text);
-                    EventHandler.AllTranslations = translations;
-                    this.Info($"Translation loaded");
-                    var default_translations = eventHandler.GetAllDefaultTranslations();
-                    foreach (string def_translation in default_translations.Keys)
-                    {
-                        if (translations.ContainsKey(def_translation))
-                            continue;
-                        translations.Add(def_translation, default_translations[def_translation]);
-                        file_override = true;
-                    }
-                    if (file_override)
-                    {
-                        text = Newtonsoft.Json.JsonConvert.SerializeObject(translations);
-                        File.WriteAllText(file, text);
-                    }
+                    if (translations.ContainsKey(def_translation))
+                        continue;
+                    translations.Add(def_translation, default_translations[def_translation]);
+                    file_override = true;
                 }
-                catch
+                if (file_override)
                 {
-                    this.Error($"Couldn't load translations!");
+                    text = Newtonsoft.Json.JsonConvert.SerializeObject(translations, Newtonsoft.Json.Formatting.Indented);
+                    if (!string.IsNullOrEmpty(text))
+                        File.WriteAllText(file, text);
                 }
             }
         }
