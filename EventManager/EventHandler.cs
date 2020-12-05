@@ -13,7 +13,7 @@ namespace EventManager
         public static Dictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
         private GameEvent NextEvent { set; get; }
 
-        private List<GameEvent> Commands;
+        private List<GameEvent> Gamemodes;
         private bool eventOnGoing;
         private bool autoStopEvent;
 
@@ -21,16 +21,16 @@ namespace EventManager
         internal EventHandler(PluginHandler plugin)
         {
             Plugin = plugin;
-            Commands = new List<GameEvent>();
+            Gamemodes = new List<GameEvent>();
         }
 
 
 
         public void RegisterCommand(GameEvent command)
         {
-            if (Commands.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
+            if (Gamemodes.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
             {
-                Commands.Add(command);
+                Gamemodes.Add(command);
                 command.Register();
                 Plugin.Info($"Added {command.GetName()} event");
             }
@@ -69,6 +69,10 @@ namespace EventManager
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
+            if (args.Length == 0)
+                return GameList();
+            if(args[0] == "list")
+                return GameList();
             if (eventOnGoing)
             {
                 return new string[] { "Event is currently on going, try after this round" };
@@ -94,7 +98,7 @@ namespace EventManager
             if (arg == "")
                 arg = "once";
 
-            GameEvent commandh = Commands.Find(x => x.GetCommands().Contains(command));
+            GameEvent commandh = Gamemodes.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
                 autoStopEvent = arg != "on";
@@ -113,11 +117,21 @@ namespace EventManager
         public IDictionary<string, IDictionary<string, string>> GetAllDefaultTranslations()
         {
             Dictionary<string, IDictionary<string, string>> translations = new();
-            foreach (GameEvent sl_event in Commands)
+            foreach (GameEvent gamemode in Gamemodes)
             {
-                translations.Add(sl_event.GetName(), sl_event.DefaultTranslation);
+                translations.Add(gamemode.GetName(), gamemode.DefaultTranslation);
             }
             return translations;
+        }
+        private string[] GameList()
+        {
+            List<string> list = new List<string>();
+            list.Add("Avalible gamemodes: ");
+            foreach(GameEvent gamemode in Gamemodes)
+            {
+                list.Add($"- {gamemode.GetName()} || {string.Join(",", gamemode.GetCommands())}");
+            }
+            return list.ToArray();
         }
     }
 }
