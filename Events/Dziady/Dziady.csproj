@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <LangVersion>latest</LangVersion>
-        <OutputType>Dll</OutputType>
+        <OutputType>library</OutputType>
     </PropertyGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\EventManager\EventManager.csproj" />
