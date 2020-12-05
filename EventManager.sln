@@ -3,7 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventManager", "EventManager\EventManager.csproj", "{66F58DE6-E79E-4919-A960-42B5E7D4AF90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager", "EventManager\EventManager.csproj", "{66F58DE6-E79E-4919-A960-42B5E7D4AF90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versus", "Events\Versus\Versus.csproj", "{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dziady", "Events\Dziady\Dziady.csproj", "{378A0382-5036-48FA-B391-68DDB6A33E18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxtonHale", "Events\SaxtonHale\SaxtonHale.csproj", "{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{66F58DE6-E79E-4919-A960-42B5E7D4AF90} = {66F58DE6-E79E-4919-A960-42B5E7D4AF90}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blackout", "Events\Blackout\Blackout.csproj", "{1E48A6D1-4042-4301-82BD-534F8EC27188}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +26,22 @@ Global
 		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66F58DE6-E79E-4919-A960-42B5E7D4AF90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{378A0382-5036-48FA-B391-68DDB6A33E18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{378A0382-5036-48FA-B391-68DDB6A33E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{378A0382-5036-48FA-B391-68DDB6A33E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{378A0382-5036-48FA-B391-68DDB6A33E18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
