@@ -8,4 +8,9 @@
     <ItemGroup>
       <ProjectReference Include="..\..\EventManager\EventManager.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Smod2">
+        <HintPath>C:\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory ServerMod\SCPSL_Data\Managed\Smod2.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>
