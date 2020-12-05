@@ -30,7 +30,8 @@ namespace EventManager
             {
                 Plugin.Info($"Added {command.GetName()} event");
                 Commands.Add(command);
-                if (AllTranslations.ContainsKey(command.GetName()))
+                //if (AllTranslations.ContainsKey(command.GetName()))
+
                 if (command is IEventHandler)
                     Plugin.AddEventHandlers(command as IEventHandler);
             }
@@ -48,6 +49,8 @@ namespace EventManager
             {
                 eventOnGoing = false;
                 NextEvent.EventEnd(ev);
+                if(autoStopEvent)
+                    NextEvent = null;
             }
         }
 
@@ -89,7 +92,7 @@ namespace EventManager
             Event commandh = Commands.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
-                eventOnGoing = arg != "on";
+                autoStopEvent = arg != "on";
                 if(NextEvent == null)
                     NextEvent = commandh;
             }
