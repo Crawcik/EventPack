@@ -20,6 +20,7 @@ namespace EventManager
         private EventHandler() { }
         internal EventHandler(PluginHandler plugin)
         {
+            autoStopEvent = true;
             Plugin = plugin;
             Gamemodes = new List<GameEvent>();
         }
@@ -71,8 +72,19 @@ namespace EventManager
         {
             if (args.Length == 0)
                 return GameList();
-            if(args[0] == "list")
-                return GameList();
+            if (args.Length == 1)
+                if (args[0] == "list")
+                    return GameList();
+            if (args.Length == 2)
+                if(args[1] == "off")
+                {
+                    autoStopEvent = true;
+                    return new string[] { $"Event is off" };
+                }
+            if(!autoStopEvent)
+            {
+                return new string[] { $"Event {NextEvent.GetName()} is set to always on!" };
+            }
             if (eventOnGoing)
             {
                 return new string[] { "Event is currently on going, try after this round" };
@@ -81,27 +93,27 @@ namespace EventManager
             {
                 return new string[] { "Event is currently in queue, try another time" };
             }
-
-            string command = "";
-            string arg = "";
-
+            string command = string.Empty;
+            string arg = string.Empty;
+            if (args.Length == 2)
+                arg = args[1];
+            if (arg == string.Empty)
+                arg = "once";
             try
             {
                 command = args[0];
-                if (arg.Length == 2)
-                    arg = args[1];
+                if (args.Length == 2)
+                    arg = args[1].ToLower();
             }
             catch (Exception exp)
             {
-                return new string[] { "Command is incorrect! ", exp.ToString(), "","Try:", "- event <gamemode>", "- event <gamemode> <on/off/once>" };
+                return new string[] { "Command is incorrect! ", exp.ToString(), "", "Try:", "- event <gamemode>", "- event <gamemode> <on/off/once>" };
             }
-            if (arg == "")
-                arg = "once";
 
             GameEvent commandh = Gamemodes.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
-                autoStopEvent = arg != "on";
+                autoStopEvent = !arg.Contains("on");
                 if(NextEvent == null)
                     NextEvent = commandh;
             }
