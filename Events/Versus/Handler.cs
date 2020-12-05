@@ -1,36 +1,37 @@
-﻿using Smod2.API;
-using Smod2.Commands;
+﻿using EventManager;
+
+using Smod2.API;
 using Smod2.Events;
 
 using System.Collections.Generic;
 
-namespace EventManager.Events
+namespace Versus
 {
-    class Versus : Event
+    public class Handler : GameEvent
     {
         #region Settings
-
-        public override string[] GetCommands()
+        public Handler()
         {
-            return new string[] { "versus" };
+            DefaultTranslation = new Dictionary<string, string>()
+            {
+                { "game_tutorial", "Event D-Class v.s. Scientists || Everyone has a gun || Checkpoints are locked" }
+            };
         }
 
-        public override string GetName()
-        {
-            return "Versus";
-        }
+        public override string[] GetCommands() => new[] { "versus" };
+
+        public override string GetName() => "Versus";
         #endregion
+
         public override void EventStart(RoundStartEvent ev)
         {
-            if (!isQueue)
-                return;
-            ev.Server.Map.Broadcast(20, Translation["game_tutorial"], false);
+            ev.Server.Map.Broadcast(20, Translation("game_tutorial"), false);
             bool nowNerd = false;
             List<Door> doors = ev.Server.Map.GetDoors();
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_A").Locked = true;
             doors.Find(x => x.Name == "CHECKPOINT_LCZ_B").Locked = true;
             Player[] players = ev.Server.GetPlayers().ToArray();
-            
+
             foreach (Player player in players)
             {
                 if (nowNerd)
@@ -49,5 +50,7 @@ namespace EventManager.Events
                 nowNerd = !nowNerd;
             }
         }
+
+        public override void EventEnd(RoundEndEvent ev) { }
     }
 }
