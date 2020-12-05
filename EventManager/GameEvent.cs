@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace EventManager
 {
-    public abstract class Event
+    public abstract class GameEvent
     {
         public abstract string[] GetCommands();
         public abstract string GetName();

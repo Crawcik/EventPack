@@ -59,9 +59,9 @@ namespace EventManager
                         Assembly a = Assembly.LoadFrom(dependency);
                         foreach (Type t in a.GetTypes())
                         {
-                            if (t.IsSubclassOf(typeof(Event)) && t != typeof(Event))
+                            if (t.IsSubclassOf(typeof(GameEvent)) && t != typeof(GameEvent))
                             {
-                                Event plugin = (Event)Activator.CreateInstance(t);
+                                GameEvent plugin = (GameEvent)Activator.CreateInstance(t);
                                 eventHandler.RegisterCommand(plugin);
                             }
                         }

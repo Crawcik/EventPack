@@ -7,13 +7,13 @@ using System.Linq;
 
 namespace EventManager
 {
-    public sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
+    internal sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
     {
         private PluginHandler Plugin { get; }
         public static IDictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
-        private Event NextEvent { set; get; }
+        private GameEvent NextEvent { set; get; }
 
-        private List<Event> Commands;
+        private List<GameEvent> Commands;
         private bool eventOnGoing;
         private bool autoStopEvent;
 
@@ -21,10 +21,10 @@ namespace EventManager
         internal EventHandler(PluginHandler plugin)
         {
             Plugin = plugin;
-            Commands = new List<Event>();
+            Commands = new List<GameEvent>();
         }
 
-        public void RegisterCommand(Event command)
+        public void RegisterCommand(GameEvent command)
         {
             if (Commands.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
             {
@@ -87,7 +87,7 @@ namespace EventManager
             if (arg == "")
                 arg = "once";
 
-            Event commandh = Commands.Find(x => x.GetCommands().Contains(command));
+            GameEvent commandh = Commands.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
                 autoStopEvent = arg != "on";
@@ -106,7 +106,7 @@ namespace EventManager
         public IDictionary<string, IDictionary<string, string>> GetAllDefaultTranslations()
         {
             Dictionary<string, IDictionary<string, string>> translations = new();
-            foreach (Event sl_event in Commands)
+            foreach (GameEvent sl_event in Commands)
             {
                 translations.Add(sl_event.GetName(), sl_event.DefaultTranslation);
             }
