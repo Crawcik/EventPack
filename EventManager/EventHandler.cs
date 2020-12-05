@@ -9,8 +9,8 @@ namespace EventManager
 {
     public sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
     {
-        public static IDictionary<string, IDictionary<string, string>> AllTranslations { private set; get; }
         private PluginHandler Plugin { get; }
+        public static IDictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
         private Event NextEvent { set; get; }
 
         private List<Event> Commands;
@@ -30,8 +30,6 @@ namespace EventManager
             {
                 Plugin.Info($"Added {command.GetName()} event");
                 Commands.Add(command);
-                //if (AllTranslations.ContainsKey(command.GetName()))
-
                 if (command is IEventHandler)
                     Plugin.AddEventHandlers(command as IEventHandler);
             }
@@ -104,5 +102,15 @@ namespace EventManager
         public string GetUsage() => "event <gamemode> <on/off/once>";
 
         public string GetCommandDescription() => "Runs events/gamemodes";
+
+        public IDictionary<string, IDictionary<string, string>> GetAllDefaultTranslations()
+        {
+            Dictionary<string, IDictionary<string, string>> translations = new();
+            foreach (Event sl_event in Commands)
+            {
+                translations.Add(sl_event.GetName(), sl_event.DefaultTranslation);
+            }
+            return translations;
+        }
     }
 }

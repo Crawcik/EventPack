@@ -6,6 +6,9 @@
         <OutputType>Dll</OutputType>
     </PropertyGroup>
     <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    </ItemGroup>
+    <ItemGroup>
       <Reference Include="Smod2">
         <HintPath>C:\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory ServerMod\SCPSL_Data\Managed\Smod2.dll</HintPath>
       </Reference>
