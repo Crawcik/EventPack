@@ -11,12 +11,16 @@ namespace SaxtonHale
         {
             while (onGoing)
             {
-                switch ((int)player.GetCurrentItem().ItemType)
+                await Task.Delay(500);
+                int type = (int)player.GetCurrentItem().ItemType;
+                if (!ActiveAbbilities.Contains((Abbility)type))
+                    continue;
+                switch (type)
                 {
                     case (int)Abbility.RAGE:
+                        ActiveAbbilities.Remove(Abbility.RAGE);
                         float hp = player.HP;
                         Vector vector = this.player.GetPosition();
-                        ActiveAbbilities.Remove(Abbility.RAGE);
                         await Task.Delay(50);
                         this.player.ChangeRole(Smod2.API.RoleType.SCP_096, spawnTeleport: false);
                         await Task.Delay(250);
@@ -35,10 +39,10 @@ namespace SaxtonHale
                     case (int)Abbility.TAUNT:
                         ActiveAbbilities.Remove(Abbility.TAUNT);
                         PluginManager.Manager.Server.Map.Shake();
-                        await Task.Delay(50);
+                        await Task.Delay(100);
                         foreach (Player x in PluginManager.Manager.Server.GetPlayers(Smod2.API.RoleType.NTF_LIEUTENANT))
                         {
-                            await Task.Delay(50);
+                            await Task.Delay(100);
                             x.GetInventory().ForEach(y => y.Drop());
                         }
                         SetNormalInventory();
@@ -49,12 +53,11 @@ namespace SaxtonHale
                         SpecialAbbility().Wait();
                         SetNormalInventory();
                         break;
-                    case (int)Smod2.API.ItemType.GUN_E11_SR:
+                    case (int)Abbility.DROP:
                         player.GetCurrentItem().Drop();
                         break;
 
                 }
-                await Task.Delay(500);
             }
         }
 
