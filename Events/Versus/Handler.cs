@@ -1,16 +1,19 @@
 ﻿using EventManager;
 
+using Smod2;
 using Smod2.API;
 using Smod2.Events;
+using Smod2.EventHandlers;
 
 using System.Collections.Generic;
+using Smod2.EventSystem.Events;
 
 namespace Versus
 {
-    public class Handler : GameEvent
+    public class Handler : GameEvent, IEventHandlerTeamRespawn
     {
         #region Settings
-        public Handler()
+        public override void Register()
         {
             DefaultTranslation = new Dictionary<string, string>()
             {
@@ -52,5 +55,10 @@ namespace Versus
         }
 
         public override void EventEnd(RoundEndEvent ev) { }
+
+        public void OnTeamRespawn(TeamRespawnEvent ev)
+        {
+            ev.PlayerList.ForEach(x => x.ChangeRole(RoleType.SPECTATOR));
+        }
     }
 }
