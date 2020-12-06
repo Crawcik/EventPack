@@ -15,14 +15,14 @@ Powered by: Smod2
 
 ##### How to download it?
 1. Download lastest version from: https://github.com/Crawcik/SL-EventPack/releases/
-2. Move "EventsManager.dll" to ***GameFolder***/sm-plugins/
+2. Move "EventManager.dll" to ***GameFolder***/sm-plugins/
 3. Run server once (Plugin will create folder)
 4. Put Gamemodes/Events to ***GameFolder***/sm-plugins/Events/
 
 ##### How do I get Gamemodes/Events
 - You can get default plugins that I created: https://github.com/Crawcik/SL-EventPack/releases/ (from EventsPack.zip)
 - You can get some from community (if someone made)
-- You can create your own. Use "EventsManager.dll" as reference in CSPROJ, and add to your class "EventManager.GameEvents" class as *base class*
+- You can create your own. Use "EventManager.dll" as reference in CSPROJ, and add to your class "EventManager.GameEvents" class as *base class*
 
 ##### How to change translation?
 - Open ***GameFolder***/sm-plugins/Events/translation.json and change text
