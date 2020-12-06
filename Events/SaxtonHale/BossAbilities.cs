@@ -19,7 +19,7 @@ namespace SaxtonHale
                         ActiveAbbilities.Remove(Abbility.RAGE);
                         await Task.Delay(50);
                         this.player.ChangeRole(Smod2.API.RoleType.SCP_096, spawnTeleport: false);
-                        await Task.Delay(100);
+                        await Task.Delay(250);
                         this.player.Teleport(vector);
                         this.player.HP = hp;
                         await Task.Delay(18000);
@@ -27,7 +27,7 @@ namespace SaxtonHale
                         hp = player.HP;
                         await Task.Delay(100);
                         this.player.ChangeRole(Smod2.API.RoleType.CHAOS_INSURGENCY);
-                        await Task.Delay(150);
+                        await Task.Delay(250);
                         this.player.Teleport(vector);
                         this.player.HP = hp;
                         SetNormalInventory();
