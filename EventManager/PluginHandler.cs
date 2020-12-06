@@ -16,7 +16,7 @@ namespace EventManager
     SmodMajor = 3,
     SmodMinor = 9,
     SmodRevision = 7,
-    version = "3.5")]
+    version = "4.0")]
     internal sealed class PluginHandler : Plugin
     {
         const string translationFile = "translation.json";
