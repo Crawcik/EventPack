@@ -26,9 +26,9 @@ namespace SaxtonHale
         {
             if (onGoing)
             {
+                SetNormalInventory();
                 TaskAwaiter = Handle().GetAwaiter();
                 TaskAwaiter.OnCompleted(ReloadAbillities);
-                SetNormalInventory();
             }
         }
 
@@ -42,7 +42,7 @@ namespace SaxtonHale
         {
             this.player.GetInventory().ForEach(x => x.Remove());
             ActiveAbbilities.ForEach(x => player.GiveItem((Smod2.API.ItemType)x));
-            player.GiveItem(Smod2.API.ItemType.USP);
+            this.player.GiveItem(Smod2.API.ItemType.USP);
             this.player.SetAmmo(AmmoType.DROPPED_9, 1000);
         }
     }

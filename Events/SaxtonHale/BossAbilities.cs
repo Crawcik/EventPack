@@ -84,7 +84,6 @@ namespace SaxtonHale
                     };
                     break;
                 case Class.DEMOMAN:
-                    SetNormalInventory();
                     System.Random random = new System.Random();
                     this.player.GodMode = true;
                     for (int i = 0; i < 30; i++)

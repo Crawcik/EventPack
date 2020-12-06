@@ -9,6 +9,7 @@ using Mirror;
 
 namespace SaxtonHale
 {
+    //This code bellow is not my. This is the owner of that code: Execut4ble#4040
     public static class Functions
     {
         public static void SetHitboxScale(GameObject target,float x, float y, float z)
