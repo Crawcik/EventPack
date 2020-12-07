@@ -14,7 +14,20 @@ namespace EventManager
         public IDictionary<string, string> DefaultConfig;
 
         protected string Translation(string key) => GetKey(key, EventHandler.AllTranslations);
-        protected T Config<T>(string key) => (T)System.Convert.ChangeType(GetKey(key, EventHandler.AllConfigs), typeof(T));
+        protected T Config<T>(string key) 
+        {
+            T result;
+            try
+            {
+                result = (T)System.Convert.ChangeType(GetKey(key, EventHandler.AllConfigs), typeof(T));
+            } 
+            catch
+            {
+                Smod2.PluginManager.Manager.Logger.Error("EVENT_MANAGER", $"In {GetName()} config, key {key} value is invalid!");
+                result = (T)System.Convert.ChangeType(DefaultTranslation[key], typeof(T));
+            }
+            return result;
+        }
 
         private string GetKey(string key, Dictionary<string, IDictionary<string,string>> data)
         {
