@@ -10,8 +10,8 @@ namespace EventManager
         public abstract void EventStart(Smod2.Events.RoundStartEvent ev);
         public abstract void EventEnd(Smod2.Events.RoundEndEvent ev);
 
-        public IDictionary<string, string> DefaultTranslation;
-        public IDictionary<string, string> DefaultConfig;
+        public IDictionary<string, string> DefaultTranslation { private set; get; }
+        public IDictionary<string, string> DefaultConfig { private set; get; }
 
         protected string Translation(string key) => GetKey(key, EventHandler.AllTranslations);
         protected T Config<T>(string key) 
