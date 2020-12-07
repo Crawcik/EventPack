@@ -24,7 +24,7 @@ namespace EventManager
             catch
             {
                 Smod2.PluginManager.Manager.Logger.Error("EVENT_MANAGER", $"In {GetName()} config, key {key} value is invalid!");
-                result = (T)System.Convert.ChangeType(DefaultTranslation[key], typeof(T));
+                result = (T)System.Convert.ChangeType(DefaultConfig[key], typeof(T));
             }
             return result;
         }

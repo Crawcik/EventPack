@@ -70,9 +70,9 @@ namespace EventManager
                             if (t.IsSubclassOf(typeof(GameEvent)) && t != typeof(GameEvent))
                                 eventHandler.RegisterCommand((GameEvent)Activator.CreateInstance(t), t);
                     }
-                    catch (Exception)
+                    catch
                     {
-                        this.Error($"Couldn't register {dependency}. Isn't it outdated?");
+                        Logger.Error("EVENT_LOADER", $"Couldn't register {Path.GetFileName(dependency)}. Isn't it outdated?");
                     }
                 }
             }
@@ -83,12 +83,12 @@ namespace EventManager
             }
         }
 
-        private void LoadData(string file, Dictionary<string, IDictionary<string, string>> AllData)
+        private void LoadData(string file, ref Dictionary<string, IDictionary<string, string>> AllData)
         {
-            file = PluginDirectory + Path.DirectorySeparatorChar + file;
-            if (!File.Exists(file))
+            string path = PluginDirectory + Path.DirectorySeparatorChar + file;
+            if (!File.Exists(path))
             {
-                using (FileStream fs = File.Create(file))
+                using (FileStream fs = File.Create(path))
                 {
                     string text = Newtonsoft.Json.JsonConvert.SerializeObject(file == configFile ? eventHandler.GetAllDefaultConfig() : eventHandler.GetAllDefaultTranslations(), Newtonsoft.Json.Formatting.Indented);
                     if (!string.IsNullOrEmpty(text))
@@ -102,31 +102,31 @@ namespace EventManager
             {
                 Dictionary<string, IDictionary<string, string>> data;
                 bool file_override = false;
-                string text = File.ReadAllText(file);
+                string text = File.ReadAllText(path);
                 data = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(text);
                 AllData = data;
                 this.Info($"{file} loaded!");
-                var default_translations = file == configFile ? eventHandler.GetAllDefaultConfig() : eventHandler.GetAllDefaultTranslations();
-                foreach (string def_translation in default_translations.Keys)
+                var default_data = file == configFile ? eventHandler.GetAllDefaultConfig() : eventHandler.GetAllDefaultTranslations();
+                foreach (string def in default_data.Keys)
                 {
-                    if (data.ContainsKey(def_translation))
+                    if (data.ContainsKey(def))
                         continue;
-                    data.Add(def_translation, default_translations[def_translation]);
+                    data.Add(def, default_data[def]);
                     file_override = true;
                 }
                 if (file_override)
                 {
                     text = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
                     if (!string.IsNullOrEmpty(text))
-                        File.WriteAllText(file, text);
+                        File.WriteAllText(path, text);
                 }
             }
         }
 
         public void ReloadConfigs()
         {
-            LoadData(translationFile, EventHandler.AllTranslations);
-            LoadData(configFile, EventHandler.AllConfigs);
+            LoadData(translationFile, ref EventHandler.AllTranslations);
+            LoadData(configFile, ref EventHandler.AllConfigs);
         }
     }
 }

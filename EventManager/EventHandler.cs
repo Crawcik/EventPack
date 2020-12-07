@@ -10,10 +10,10 @@ namespace EventManager
     internal sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
     {
         private PluginHandler Plugin { get; }
-        public static Dictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
-        public static Dictionary<string, IDictionary<string, string>> AllConfigs { set; get; }
         private GameEvent NextEvent { set; get; }
 
+        public static Dictionary<string, IDictionary<string, string>> AllTranslations;
+        public static Dictionary<string, IDictionary<string, string>> AllConfigs;
         private List<GameEvent> Gamemodes;
         private bool eventOnGoing;
         private bool autoStopEvent;
@@ -32,9 +32,11 @@ namespace EventManager
         {
             if (Gamemodes.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
             {
+                DetailsAttribute details = null;
                 Gamemodes.Add(command);
-                DetailsAttribute details = (DetailsAttribute)Attribute.GetCustomAttribute(type, typeof(DetailsAttribute));
-                if (details != null && details.author != null)
+                if(type.CustomAttributes.Count() > 0)
+                    details = (DetailsAttribute)Attribute.GetCustomAttribute(type, typeof(DetailsAttribute));
+                if (details != null)
                 {
                     if(details.EVENT_MINOR!= Plugin.PLUGIN_MINOR)
                     {
@@ -93,8 +95,15 @@ namespace EventManager
             if (args.Length == 0)
                 return GameList();
             if (args.Length == 1)
+            {
                 if (args[0] == "list")
                     return GameList();
+                if (args[0] == "refresh")
+                {
+                    Plugin.ReloadConfigs();
+                    return new string[] { $"Events configs are reloaded!" };
+                }
+            }
             if (args.Length == 2)
                 if(args[1] == "off")
                 {
