@@ -28,17 +28,36 @@ namespace EventManager
 
 
 
-        public void RegisterCommand(GameEvent command)
+        public void RegisterCommand(GameEvent command, Type type)
         {
             if (Gamemodes.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
             {
                 Gamemodes.Add(command);
+                DetailsAttribute details = (DetailsAttribute)Attribute.GetCustomAttribute(type, typeof(DetailsAttribute));
+                if (details != null && details.author != null)
+                {
+                    if(details.EVENT_MINOR!= Plugin.PLUGIN_MINOR)
+                    {
+                        string add = string.Empty;
+                        if (details.EVENT_MAJOR != Plugin.PLUGIN_MAJOR)
+                            add = "REALLY ";
+                        Plugin.Logger.Warn("EVENT_LOADER", $"{command.GetName()} is written for {add}outdated version of EventManager!");
+                    }
+                    if (details.SMOD_MINOR != Smod2.PluginManager.SMOD_MINOR)
+                    {
+                        string add = string.Empty;
+                        if (details.SMOD_MAJOR != Smod2.PluginManager.SMOD_MAJOR)
+                            add = "REALLY ";
+                        Plugin.Logger.Warn("EVENT_LOADER", $"{command.GetName()} is written for {add}outdated version of Smod2!");
+                    }
+                    Plugin.Logger.Info("EVENT_LOADER", $"Added {command.GetName()} by {details.author}");
+                }
                 command.Register();
-                Plugin.Info($"Added {command.GetName()} event");
+                Plugin.Logger.Info("EVENT_LOADER", $"Added {command.GetName()}");
             }
             else
             {
-                Plugin.Error($"Couldn't add {command.GetName()}");
+                Plugin.Logger.Error("EVENT_LOADER", $"Couldn't add {command.GetName()}");
             }
         }
 

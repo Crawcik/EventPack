@@ -9,7 +9,7 @@ namespace EventManager
     [Smod2.Attributes.PluginDetails(
     author = "Crawcik",
     configPrefix = "event",
-    description = "Plugin with events",
+    description = "Plugin to manage events/gamemodes",
     id = "crawcik.event_manager",
     langFile = "event",
     name = "Events",
@@ -19,6 +19,9 @@ namespace EventManager
     version = "4.1")]
     internal sealed class PluginHandler : Plugin
     {
+        public int PLUGIN_MAJOR { private set; get; }
+        public int PLUGIN_MINOR { private set; get; }
+
         const string translationFile = "translation.json";
         const string configFile = "config.json";
 
@@ -47,6 +50,9 @@ namespace EventManager
 
         public override void Register()
         {
+            string[] version = this.Details.version.Split('.');
+            PLUGIN_MAJOR = int.Parse(version[0]);
+            PLUGIN_MINOR = int.Parse(version[0]);
             eventHandler = new EventHandler(this);
             string directory = PluginDirectory;
             if (Directory.Exists(directory))
@@ -56,13 +62,13 @@ namespace EventManager
                 {
                     if (!dependency.Contains(".dll"))
                         continue;
-                    Logger.Debug("PLUGIN_LOADER", "Loading EventManager dependency: " + dependency);
+                    Logger.Debug("EVENT_LOADER", "Loading Gamemodes/Events: " + dependency);
                     try
                     {
                         Assembly a = Assembly.LoadFrom(dependency);
                         foreach (Type t in a.GetTypes())
                             if (t.IsSubclassOf(typeof(GameEvent)) && t != typeof(GameEvent))
-                                eventHandler.RegisterCommand((GameEvent)Activator.CreateInstance(t));
+                                eventHandler.RegisterCommand((GameEvent)Activator.CreateInstance(t), t);
                     }
                     catch (Exception)
                     {
