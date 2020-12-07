@@ -10,10 +10,10 @@ namespace EventManager
     internal sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
     {
         private PluginHandler Plugin { get; }
-        public static Dictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
-        public static Dictionary<string, IDictionary<string, string>> AllConfigs { set; get; }
         private GameEvent NextEvent { set; get; }
 
+        public static Dictionary<string, IDictionary<string, string>> AllTranslations;
+        public static Dictionary<string, IDictionary<string, string>> AllConfigs;
         private List<GameEvent> Gamemodes;
         private bool eventOnGoing;
         private bool autoStopEvent;
@@ -28,17 +28,38 @@ namespace EventManager
 
 
 
-        public void RegisterCommand(GameEvent command)
+        public void RegisterCommand(GameEvent command, Type type)
         {
             if (Gamemodes.Find(x => x.GetName() == command.GetName() || command.GetCommands().Any(y => x.GetCommands().Contains(y))) == null)
             {
+                DetailsAttribute details = null;
                 Gamemodes.Add(command);
+                if(type.CustomAttributes.Count() > 0)
+                    details = (DetailsAttribute)Attribute.GetCustomAttribute(type, typeof(DetailsAttribute));
+                if (details != null)
+                {
+                    if(details.EVENT_MINOR!= Plugin.PLUGIN_MINOR)
+                    {
+                        string add = string.Empty;
+                        if (details.EVENT_MAJOR != Plugin.PLUGIN_MAJOR)
+                            add = "REALLY ";
+                        Plugin.Logger.Warn("EVENT_LOADER", $"{command.GetName()} is written for {add}outdated version of EventManager!");
+                    }
+                    if (details.SMOD_MINOR != Smod2.PluginManager.SMOD_MINOR)
+                    {
+                        string add = string.Empty;
+                        if (details.SMOD_MAJOR != Smod2.PluginManager.SMOD_MAJOR)
+                            add = "REALLY ";
+                        Plugin.Logger.Warn("EVENT_LOADER", $"{command.GetName()} is written for {add}outdated version of Smod2!");
+                    }
+                    Plugin.Logger.Info("EVENT_LOADER", $"Added {command.GetName()} by {details.author}");
+                }
                 command.Register();
-                Plugin.Info($"Added {command.GetName()} event");
+                Plugin.Logger.Info("EVENT_LOADER", $"Added {command.GetName()}");
             }
             else
             {
-                Plugin.Error($"Couldn't add {command.GetName()}");
+                Plugin.Logger.Error("EVENT_LOADER", $"Couldn't add {command.GetName()}");
             }
         }
 
@@ -74,8 +95,15 @@ namespace EventManager
             if (args.Length == 0)
                 return GameList();
             if (args.Length == 1)
+            {
                 if (args[0] == "list")
                     return GameList();
+                if (args[0] == "refresh")
+                {
+                    Plugin.ReloadConfigs();
+                    return new string[] { $"Events configs are reloaded!" };
+                }
+            }
             if (args.Length == 2)
                 if(args[1] == "off")
                 {
@@ -83,17 +111,11 @@ namespace EventManager
                     return new string[] { $"Event is off" };
                 }
             if(!autoStopEvent)
-            {
                 return new string[] { $"Event {NextEvent.GetName()} is set to always on!" };
-            }
             if (eventOnGoing)
-            {
                 return new string[] { "Event is currently on going, try after this round" };
-            }
             if (NextEvent != null)
-            {
                 return new string[] { "Event is currently in queue, try another time" };
-            }
             string command = string.Empty;
             string arg = string.Empty;
             if (args.Length == 2)
@@ -129,13 +151,24 @@ namespace EventManager
 
         public IDictionary<string, IDictionary<string, string>> GetAllDefaultTranslations()
         {
-            Dictionary<string, IDictionary<string, string>> translations = new();
+            Dictionary<string, IDictionary<string, string>> data = new();
             foreach (GameEvent gamemode in Gamemodes)
             {
-                translations.Add(gamemode.GetName(), gamemode.DefaultTranslation);
+                data.Add(gamemode.GetName(), gamemode.DefaultTranslation);
             }
-            return translations;
+            return data;
         }
+
+        public IDictionary<string, IDictionary<string, string>> GetAllDefaultConfig()
+        {
+            Dictionary<string, IDictionary<string, string>> data = new();
+            foreach (GameEvent gamemode in Gamemodes)
+            {
+                data.Add(gamemode.GetName(), gamemode.DefaultConfig);
+            }
+            return data;
+        }
+
         private string[] GameList()
         {
             List<string> list = new List<string>();

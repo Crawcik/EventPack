@@ -23,6 +23,9 @@ namespace Dziady
                 { "scp049_start", "You're a priest" },
                 { "zombie_spawn", "The Dead rose from their graves!" }
             };
+            DefaultConfig = new Dictionary<string, string> {
+                { "gate_a_opened", "true" },
+            };
         }
 
         public override string[] GetCommands() => new[] { "dziady" };
@@ -33,9 +36,12 @@ namespace Dziady
         public override void EventStart(RoundStartEvent ev)
         {
             ev.Server.Map.Broadcast(5, Translation("start"), false);
-            Door gate_a = ev.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
-            gate_a.Open = true;
-            gate_a.Locked = true;
+            if (Config<bool>("gate_a_opened"))
+            {
+                Door gate_a = ev.Server.Map.GetDoors().Find(x => x.Name == "GATE_A");
+                gate_a.Open = true;
+                gate_a.Locked = true;
+            }
             Player[] scps = ev.Server.GetPlayers().Where(x => x.TeamRole.Team == Smod2.API.TeamType.SCP).ToArray();
             foreach (Player scp in scps)
             {
