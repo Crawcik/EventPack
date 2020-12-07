@@ -83,17 +83,11 @@ namespace EventManager
                     return new string[] { $"Event is off" };
                 }
             if(!autoStopEvent)
-            {
                 return new string[] { $"Event {NextEvent.GetName()} is set to always on!" };
-            }
             if (eventOnGoing)
-            {
                 return new string[] { "Event is currently on going, try after this round" };
-            }
             if (NextEvent != null)
-            {
                 return new string[] { "Event is currently in queue, try another time" };
-            }
             string command = string.Empty;
             string arg = string.Empty;
             if (args.Length == 2)
