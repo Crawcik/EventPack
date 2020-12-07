@@ -142,13 +142,24 @@ namespace EventManager
 
         public IDictionary<string, IDictionary<string, string>> GetAllDefaultTranslations()
         {
-            Dictionary<string, IDictionary<string, string>> translations = new();
+            Dictionary<string, IDictionary<string, string>> data = new();
             foreach (GameEvent gamemode in Gamemodes)
             {
-                translations.Add(gamemode.GetName(), gamemode.DefaultTranslation);
+                data.Add(gamemode.GetName(), gamemode.DefaultTranslation);
             }
-            return translations;
+            return data;
         }
+
+        public IDictionary<string, IDictionary<string, string>> GetAllDefaultConfig()
+        {
+            Dictionary<string, IDictionary<string, string>> data = new();
+            foreach (GameEvent gamemode in Gamemodes)
+            {
+                data.Add(gamemode.GetName(), gamemode.DefaultConfig);
+            }
+            return data;
+        }
+
         private string[] GameList()
         {
             List<string> list = new List<string>();

@@ -90,7 +90,7 @@ namespace EventManager
             {
                 using (FileStream fs = File.Create(file))
                 {
-                    string text = Newtonsoft.Json.JsonConvert.SerializeObject(eventHandler.GetAllDefaultTranslations(), Newtonsoft.Json.Formatting.Indented);
+                    string text = Newtonsoft.Json.JsonConvert.SerializeObject(file == configFile ? eventHandler.GetAllDefaultConfig() : eventHandler.GetAllDefaultTranslations(), Newtonsoft.Json.Formatting.Indented);
                     if (!string.IsNullOrEmpty(text))
                     {
                         byte[] info = new System.Text.UTF8Encoding(true).GetBytes(text);
@@ -106,7 +106,7 @@ namespace EventManager
                 data = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(text);
                 AllData = data;
                 this.Info($"{file} loaded!");
-                var default_translations = eventHandler.GetAllDefaultTranslations();
+                var default_translations = file == configFile ? eventHandler.GetAllDefaultConfig() : eventHandler.GetAllDefaultTranslations();
                 foreach (string def_translation in default_translations.Keys)
                 {
                     if (data.ContainsKey(def_translation))
