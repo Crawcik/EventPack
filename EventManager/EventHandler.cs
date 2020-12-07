@@ -11,6 +11,7 @@ namespace EventManager
     {
         private PluginHandler Plugin { get; }
         public static Dictionary<string, IDictionary<string, string>> AllTranslations { set; get; }
+        public static Dictionary<string, IDictionary<string, string>> AllConfigs { set; get; }
         private GameEvent NextEvent { set; get; }
 
         private List<GameEvent> Gamemodes;

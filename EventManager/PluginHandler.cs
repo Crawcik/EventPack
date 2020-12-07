@@ -16,10 +16,11 @@ namespace EventManager
     SmodMajor = 3,
     SmodMinor = 9,
     SmodRevision = 7,
-    version = "4.0")]
+    version = "4.1")]
     internal sealed class PluginHandler : Plugin
     {
         const string translationFile = "translation.json";
+        const string configFile = "config.json";
 
         public string PluginDirectory
         {
@@ -41,7 +42,7 @@ namespace EventManager
         {
             this.AddCommand("event", eventHandler);
             this.AddEventHandlers(eventHandler);
-            LoadTranslation();
+            ReloadConfigs();
         }
 
         public override void Register()
@@ -55,34 +56,30 @@ namespace EventManager
                 {
                     if (!dependency.Contains(".dll"))
                         continue;
-                    Logger.Info("PLUGIN_LOADER", "Loading plugin dependency: " + dependency);
+                    Logger.Debug("PLUGIN_LOADER", "Loading EventManager dependency: " + dependency);
                     try
                     {
                         Assembly a = Assembly.LoadFrom(dependency);
                         foreach (Type t in a.GetTypes())
-                        {
                             if (t.IsSubclassOf(typeof(GameEvent)) && t != typeof(GameEvent))
-                            {
-                                GameEvent plugin = (GameEvent)Activator.CreateInstance(t);
-                                eventHandler.RegisterCommand(plugin);
-                            }
-                        }
+                                eventHandler.RegisterCommand((GameEvent)Activator.CreateInstance(t));
                     }
                     catch (Exception)
                     {
-                        this.Error($"Couldn't register {dependency}");
+                        this.Error($"Couldn't register {dependency}. Isn't it outdated?");
                     }
                 }
             }
             else
             {
                 Directory.CreateDirectory(directory);
+                this.Info($"Directory {directory} created!");
             }
         }
 
-        private void LoadTranslation()
+        private void LoadData(string file, Dictionary<string, IDictionary<string, string>> AllData)
         {
-            string file = PluginDirectory + Path.DirectorySeparatorChar + translationFile;
+            file = PluginDirectory + Path.DirectorySeparatorChar + file;
             if (!File.Exists(file))
             {
                 using (FileStream fs = File.Create(file))
@@ -97,27 +94,33 @@ namespace EventManager
             }
             else
             {
-                Dictionary<string, IDictionary<string, string>> translations;
+                Dictionary<string, IDictionary<string, string>> data;
                 bool file_override = false;
                 string text = File.ReadAllText(file);
-                translations = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(text);
-                EventHandler.AllTranslations = translations;
-                this.Info($"Translation loaded");
+                data = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, IDictionary<string, string>>>(text);
+                AllData = data;
+                this.Info($"{file} loaded!");
                 var default_translations = eventHandler.GetAllDefaultTranslations();
                 foreach (string def_translation in default_translations.Keys)
                 {
-                    if (translations.ContainsKey(def_translation))
+                    if (data.ContainsKey(def_translation))
                         continue;
-                    translations.Add(def_translation, default_translations[def_translation]);
+                    data.Add(def_translation, default_translations[def_translation]);
                     file_override = true;
                 }
                 if (file_override)
                 {
-                    text = Newtonsoft.Json.JsonConvert.SerializeObject(translations, Newtonsoft.Json.Formatting.Indented);
+                    text = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
                     if (!string.IsNullOrEmpty(text))
                         File.WriteAllText(file, text);
                 }
             }
+        }
+
+        public void ReloadConfigs()
+        {
+            LoadData(translationFile, EventHandler.AllTranslations);
+            LoadData(configFile, EventHandler.AllConfigs);
         }
     }
 }
