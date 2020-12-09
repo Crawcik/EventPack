@@ -1,7 +1,9 @@
 ﻿using Smod2;
 using Smod2.API;
-
+using System.Collections;
 using System.Threading.Tasks;
+
+using UnityEngine;
 
 namespace SaxtonHale
 {
@@ -13,11 +15,11 @@ namespace SaxtonHale
             {
                 await Task.Delay(500);
                 int type = (int)player.GetCurrentItem().ItemType;
-                if (!ActiveAbbilities.Contains((Abbility)type))
-                    continue;
                 switch (type)
                 {
                     case (int)Abbility.RAGE:
+                        if (!ActiveAbbilities.Contains(Abbility.RAGE))
+                            break;
                         ActiveAbbilities.Remove(Abbility.RAGE);
                         float hp = player.HP;
                         Vector vector = this.player.GetPosition();
@@ -37,6 +39,8 @@ namespace SaxtonHale
                         SetNormalInventory();
                         break;
                     case (int)Abbility.TAUNT:
+                        if (!ActiveAbbilities.Contains(Abbility.TAUNT))
+                            break;
                         ActiveAbbilities.Remove(Abbility.TAUNT);
                         PluginManager.Manager.Server.Map.Shake();
                         await Task.Delay(100);
@@ -48,6 +52,8 @@ namespace SaxtonHale
                         SetNormalInventory();
                         break;
                     case (int)Abbility.SPECIAL:
+                        if (!ActiveAbbilities.Contains(Abbility.SPECIAL))
+                            break;
                         ActiveAbbilities.Remove(Abbility.SPECIAL);
                         SpecialAbbility().Start();
                         SpecialAbbility().Wait();
@@ -68,6 +74,7 @@ namespace SaxtonHale
                 case Class.SAXTON:
                     this.player.GetInventory().ForEach(x => x.Remove());
                     player.GodMode = true;
+                    await Task.Delay(100);
                     player.GiveItem(Smod2.API.ItemType.LOGICER);
                     await Task.Delay(100);
                     player.SetCurrentItem(Smod2.API.ItemType.LOGICER);
@@ -84,22 +91,23 @@ namespace SaxtonHale
                     };
                     break;
                 case Class.DEMOMAN:
-                    System.Random random = new System.Random();
                     this.player.GodMode = true;
-                    for (int i = 0; i < 30; i++)
+                    for (int i = 0; i < 40; i++)
                     {
-                        random.Next(0, 360);
-                        Vector v = new Vector(60f, random.Next(0, 360), 0f);
+                        Vector v = new Vector(60f, Random.Range(0f, 359f), 0f);
                         this.player.ThrowGrenade(GrenadeType.FRAG_GRENADE, v.Normalize, 3f, false);
-                        await Task.Delay(200);
+                        await Task.Delay(150);
                     }
                     this.player.GodMode = false;
                     break;
                 case Class.FLASH:
                     this.player.GodMode = true;
-                    this.player.GetPlayerEffect(StatusEffect.SCP207).Enable(12f);
-                    this.player.GetPlayerEffect(StatusEffect.SCP207).Intensity = 4f;
-                    await Task.Delay(20000);
+                    for (int i = 0; i < 40; i++)
+                    {
+                        Vector v = new Vector(60f, Random.Range(0f, 359f), 0f);
+                        this.player.ThrowGrenade(GrenadeType.FRAG_GRENADE, v.Normalize, 3f, false);
+                        await Task.Delay(30);
+                    }
                     this.player.GodMode = false;
                     break;
                 case Class.MINIMIKE:

@@ -45,7 +45,7 @@ namespace EventManager
                             add = "REALLY ";
                         Plugin.Logger.Warn("EVENT_LOADER", $"{command.GetName()} is written for {add}outdated version of EventManager!");
                     }
-                    if (details.SMOD_MINOR != Smod2.PluginManager.SMOD_MINOR)
+                    if (details.SMOD_MINOR > Smod2.PluginManager.SMOD_MINOR-2)
                     {
                         string add = string.Empty;
                         if (details.SMOD_MAJOR != Smod2.PluginManager.SMOD_MAJOR)
@@ -65,9 +65,7 @@ namespace EventManager
 
         public void OnRoundEnd(RoundEndEvent ev)
         {
-            if (ev.Status == Smod2.API.ROUND_END_STATUS.ON_GOING)
-                eventOnGoing = true;
-            else
+            if (ev.Status != Smod2.API.ROUND_END_STATUS.ON_GOING)
             {
                 eventOnGoing = false;
                 NextEvent.EventEnd(ev);
@@ -82,12 +80,11 @@ namespace EventManager
         {
             if (NextEvent != null)
             {
+                eventOnGoing = true;
                 NextEvent.EventStart(ev);
                 if (NextEvent is IEventHandler)
                     Plugin.AddEventHandlers(NextEvent as IEventHandler);
             }
-            else return;
-            eventOnGoing = true;
         }
 
         public string[] OnCall(ICommandSender sender, string[] args)
@@ -108,6 +105,8 @@ namespace EventManager
                 if(args[1] == "off")
                 {
                     autoStopEvent = true;
+                    if (!eventOnGoing)
+                        NextEvent = null;
                     return new string[] { $"Event is off" };
                 }
             if(!autoStopEvent)

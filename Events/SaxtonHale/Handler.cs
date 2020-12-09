@@ -23,6 +23,14 @@ namespace SaxtonHale
                 { "tutorial", "<size=20>Janitor card - RAGE, MTF card - Taunt, O5 card - SPECJAL</size>" },
                 { "hale_spawn", "%nick% became %class% | %hp%HP" }
             };
+            DefaultConfig = new Dictionary<string, string>()
+            {
+                { "saxton", "true" },
+                { "ripper", "true" },
+                { "demoman", "true" },
+                { "flash", "true" },
+                { "minimike", "true" },
+            };
         }
 
         public override string[] GetCommands() => new[] { "saxton", "hale", "sh" };
@@ -55,10 +63,7 @@ namespace SaxtonHale
             QueuePoints[most_player.UserId] = 0;
 
             //Setting boss
-            if (boss_type_num == Enum.GetNames(typeof(Class)).Length)
-                boss_type_num = 0;
-            this.boss = new Boss((Class)boss_type_num, most_player, Translation("tutorial"));
-            boss_type_num++;
+            this.boss = new Boss(GetRandomBoss(), most_player, Translation("tutorial"));
             int count = ev.Server.GetPlayers().Count;
             this.boss.player.HP = count * (400 + (count *20));
             most_player = null;
@@ -67,6 +72,38 @@ namespace SaxtonHale
         public override void EventEnd(RoundEndEvent ev)
         {
             boss = null;
+        }
+
+        public Class GetRandomBoss()
+        {
+            while (true)
+            {
+                Class boss_id = (Class)UnityEngine.Random.Range(boss_type_num, Enum.GetNames(typeof(Class)).Length - 1);
+                switch(boss_id)
+                {
+                    case Class.SAXTON:
+                        if (!Config<bool>("saxton"))
+                            continue;
+                        break;
+                    case Class.RIPPER:
+                        if (!Config<bool>("ripper"))
+                            continue;
+                        break;
+                    case Class.DEMOMAN:
+                        if (!Config<bool>("demoman"))
+                            continue;
+                        break;
+                    case Class.FLASH:
+                        if (!Config<bool>("flash"))
+                            continue;
+                        break;
+                    case Class.MINIMIKE:
+                        if (!Config<bool>("minimike"))
+                            continue;
+                        break;
+                }
+                return boss_id;
+            }
         }
 
         public void OnCheckRoundEnd(CheckRoundEndEvent ev)
