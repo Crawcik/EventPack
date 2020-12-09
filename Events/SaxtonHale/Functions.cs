@@ -52,4 +52,9 @@ namespace SaxtonHale
             method.Invoke(null, param);
         }
     }
+
+    public class MegaHandler
+    {
+    
+    }
 }
