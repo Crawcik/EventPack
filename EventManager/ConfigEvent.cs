@@ -34,7 +34,7 @@ namespace EventManager
             {
                 { "access_full", "owner, admin" },
                 { "access_queue", "owner, admin, moderator" },
-                { "queue_cooldown", "0" }
+                { "queue_cooldown", "3" }
             };
             DefaultTranslation = new Dictionary<string, string>()
             {
