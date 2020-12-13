@@ -47,8 +47,7 @@ namespace EventManager
                 { "access_denied", "You don't have permission to do this!" },
                 { "cooldown_alert", "You'll be able to use this after {0} round" },
                 { "invalid_command", "Command is incorrect! Try:" },
-                { "configs_are_reloaded", "Events configs are reloaded" },
-                { "cooldown", "0" }
+                { "configs_are_reloaded", "Events configs are reloaded" }
             };
         }
     }
