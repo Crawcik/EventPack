@@ -13,8 +13,8 @@ namespace EventManager
         public IDictionary<string, string> DefaultTranslation { protected set; get; }
         public IDictionary<string, string> DefaultConfig { protected set; get; }
 
-        protected string Translation(string key) => GetKey(key, EventHandler.AllTranslations);
-        protected T Config<T>(string key) 
+        public string Translation(string key) => GetKey(key, EventHandler.AllTranslations);
+        public T Config<T>(string key) 
         {
             T result;
             try
