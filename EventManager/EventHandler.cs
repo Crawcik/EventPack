@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace EventManager
 {
-    internal sealed class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
+    internal sealed partial class EventHandler : ICommandHandler, IEventHandlerRoundStart, IEventHandlerRoundEnd
     {
         private PluginHandler Plugin { get; }
         private GameEvent NextEvent { set; get; }
