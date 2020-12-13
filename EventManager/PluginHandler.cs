@@ -109,10 +109,17 @@ namespace EventManager
                 var default_data = file == configFile ? eventHandler.GetAllDefaultConfig() : eventHandler.GetAllDefaultTranslations();
                 foreach (string def in default_data.Keys)
                 {
-                    if (data.ContainsKey(def))
+                    if(!data.ContainsKey(def))
+                        data.Add(def, default_data[def]);
+                    if (default_data[def] == null)
                         continue;
-                    data.Add(def, default_data[def]);
-                    file_override = true;
+                    foreach(string def_def in default_data[def].Keys)
+                    {
+                        if (data[def].ContainsKey(def_def))
+                            continue;
+                        data[def].Add(def_def, default_data[def][def_def]);
+                        file_override = true;
+                    }
                 }
                 if (file_override)
                 {
