@@ -1,0 +1,30 @@
+{
+  "Permissions": {
+    "event_success": "[{0}] Event jest {1}",
+    "event_is_looped": "{0} jest ustawiony na zawsze włączony!",
+    "event_is_ongoing": "Event jest w trakcie gry, spróbuj po rundzie",
+    "event_is_inqueue": "{0} jest obecnie w kolejece. Spróbuj później",
+    "event_dont_exist": "Ten event nie istnieje!",
+    "event_list": "Dostępne eventy:",
+    "access_denied": "Nie masz uprawnień do tego!",
+    "cooldown_alert": "Będziesz mógł tego użyć za {0} rundy",
+    "invalid_command": "Komenda nieprawidłowa! Spróbuj:",
+    "configs_are_reloaded": "Pliki konfiguracyjne zostały zresetowane",
+    "cooldown": "0"
+  },
+  "Versus": {
+    "game_tutorial": "D-BOIS v.s. NERDS || Każdy ma broń || Checkpointy są zablokowane"
+  },
+  "Blackout": {
+    "battery": "Bateria"
+  },
+  "Dziady": {
+    "start": "Niech się zaczną dziady!",
+    "scp049_start": "Jesteś kapłanem",
+    "zombie_spawn": "Martwi zrespili się!"
+  },
+  "Saxton Hale": {
+    "tutorial": "<size=20>Janitor card - RAGE, MTF card - Taunt, O5 card - SPECJAL</size>",
+    "hale_spawn": "%nick% został %class%EM | %hp%HP"
+  }
+}
