@@ -24,6 +24,7 @@ namespace EventManager
         private EventHandler() { }
         internal EventHandler(PluginHandler plugin)
         {
+            Permissions = new ConfigEvent();
             Permissions.Register();
             autoStopEvent = true;
             Plugin = plugin;
@@ -102,6 +103,8 @@ namespace EventManager
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
+            if (args.Length == 0)
+                return GameList();
 
             string command = args[0];
             string arg = "once";
@@ -114,9 +117,6 @@ namespace EventManager
 
             if (!hasFullAccess && !isQueue)
                 return new string[] { Permissions.Translation("access_denied") };
-
-            if (args.Length == 0)
-                return GameList();
 
             //Checking list or reload
             if (args.Length == 1)
@@ -145,10 +145,8 @@ namespace EventManager
                 }
             }
             if (args.Length > 2)
-                return new string[] { Permissions.Translation("invalid_command"), " - event <gamemode>", "- event <gamemode> <on/off/once>" }; return new string[] { Permissions.Translation("invalid_command"), " - event <gamemode>", "- event <gamemode> <on/off/once>" };
-#pragma warning disable CS0162
+                return new string[] { Permissions.Translation("invalid_command"), "- event <gamemode>", "- event <gamemode> <on/off/once>" };
             if (!autoStopEvent)
-#pragma warning restore CS0162
                 return new string[] { string.Format(Permissions.Translation("event_is_looped"), NextEvent.GetName()) };
             if (eventOnGoing)
                 return new string[] { Permissions.Translation("event_is_ongoing") };
