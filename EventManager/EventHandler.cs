@@ -83,10 +83,9 @@ namespace EventManager
 
             foreach (string key in Cooldowns.Keys)
             {
-                if (Cooldowns[key] <= 0)
+                Cooldowns[key]--;
+                if (Cooldowns[key] == 0)
                     Cooldowns.Remove(key);
-                else
-                    Cooldowns[key]--;
             }
         }
 
@@ -139,9 +138,10 @@ namespace EventManager
                     if (!hasFullAccess)
                         return new string[] { Permissions.Translation("access_denied") };
                     autoStopEvent = true;
+                    string event_name = NextEvent.GetName();
                     if (!eventOnGoing)
                         NextEvent = null;
-                    return new string[] { string.Format(Permissions.Translation("event_success"), NextEvent.GetName(), arg) };
+                    return new string[] { string.Format(Permissions.Translation("event_success"), event_name, arg) };
                 }
             }
             if (args.Length > 2)
@@ -157,7 +157,7 @@ namespace EventManager
             GameEvent commandh = Gamemodes.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
-                if (arg.Contains("on") && !hasFullAccess)
+                if (arg == "on" && !hasFullAccess)
                     return new string[] { Permissions.Translation("access_denied") };
                 int round_wait = Permissions.Config<int>("queue_cooldown");
                 if (!hasFullAccess && isQueue && round_wait < 2)
@@ -167,7 +167,7 @@ namespace EventManager
                     else
                         return new string[] { string.Format(Permissions.Translation("cooldown_alert"), Cooldowns[player.UserId]) };
                 }
-                autoStopEvent = !arg.Contains("on");
+                autoStopEvent = arg != "on";
                 NextEvent = commandh;
             }
             else return new string[] { Permissions.Translation("event_dont_exist") };
