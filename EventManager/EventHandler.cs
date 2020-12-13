@@ -79,6 +79,14 @@ namespace EventManager
                     NextEvent = null;
                 Plugin.AddEventHandlers(this);
             }
+
+            foreach (string key in Cooldowns.Keys)
+            {
+                if (Cooldowns[key] <= 0)
+                    Cooldowns.Remove(key);
+                else
+                    Cooldowns[key]--;
+            }
         }
 
         public void OnRoundStart(RoundStartEvent ev)
@@ -153,6 +161,14 @@ namespace EventManager
             {
                 if (arg.Contains("on") && !hasFullAccess)
                     return new string[] { Permissions.Translation("access_denied") };
+                int round_wait = Permissions.Config<int>("queue_cooldown");
+                if (!hasFullAccess && isQueue && round_wait < 2)
+                {
+                    if (!Cooldowns.ContainsKey(player.UserId))
+                        Cooldowns.Add(player.UserId, round_wait);
+                    else
+                        return new string[] { string.Format(Permissions.Translation("cooldown_alert"), Cooldowns[player.UserId]) };
+                }
                 autoStopEvent = !arg.Contains("on");
                 NextEvent = commandh;
             }
