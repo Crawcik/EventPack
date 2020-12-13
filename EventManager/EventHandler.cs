@@ -1,4 +1,5 @@
-﻿using Smod2.Commands;
+﻿using Smod2.API;
+using Smod2.Commands;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using System;
@@ -15,15 +16,19 @@ namespace EventManager
         public static Dictionary<string, IDictionary<string, string>> AllTranslations;
         public static Dictionary<string, IDictionary<string, string>> AllConfigs;
         private List<GameEvent> Gamemodes;
+        private Dictionary<string,int> Cooldowns;
+        private GameEvent Permissions;
         private bool eventOnGoing;
         private bool autoStopEvent;
 
         private EventHandler() { }
         internal EventHandler(PluginHandler plugin)
         {
+            Permissions.Register();
             autoStopEvent = true;
             Plugin = plugin;
             Gamemodes = new List<GameEvent>();
+            Cooldowns = new Dictionary<string, int>();
         }
 
 
@@ -89,58 +94,70 @@ namespace EventManager
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
+
+            string command = args[0];
+            string arg = "once";
+            string[] access_full = Permissions.Config<string>("access_full").Split(',');
+            string[] access_queue = Permissions.Config<string>("access_queue").Split(',');
+
+            Player player = sender as Player;
+            bool isQueue = access_queue.Contains(player.GetRankName());
+            bool hasFullAccess = access_full.Contains(player.GetRankName());
+
+            if (!hasFullAccess && !isQueue)
+                return new string[] { Permissions.Translation("access_denied") };
+
             if (args.Length == 0)
                 return GameList();
+
+            //Checking list or reload
             if (args.Length == 1)
             {
-                if (args[0] == "list")
+                if (command == "list")
                     return GameList();
-                if (args[0] == "refresh")
+                if (command == "refresh")
                 {
                     Plugin.ReloadConfigs();
-                    return new string[] { $"Events configs are reloaded!" };
+                    return new string[] { Permissions.Translation("configs_are_reloaded") };
                 }
             }
+
+            //Checking if changes blocked
             if (args.Length == 2)
-                if(args[1] == "off")
+            {
+                arg = args[1].ToLower();
+                if (arg == "off")
                 {
+                    if (!hasFullAccess)
+                        return new string[] { Permissions.Translation("access_denied") };
                     autoStopEvent = true;
                     if (!eventOnGoing)
                         NextEvent = null;
-                    return new string[] { $"Event is off" };
+                    return new string[] { string.Format(Permissions.Translation("event_success"), NextEvent.GetName(), arg) };
                 }
-            if(!autoStopEvent)
-                return new string[] { $"Event {NextEvent.GetName()} is set to always on!" };
+            }
+            if (args.Length > 2)
+                return new string[] { Permissions.Translation("invalid_command"), " - event <gamemode>", "- event <gamemode> <on/off/once>" }; return new string[] { Permissions.Translation("invalid_command"), " - event <gamemode>", "- event <gamemode> <on/off/once>" };
+#pragma warning disable CS0162
+            if (!autoStopEvent)
+#pragma warning restore CS0162
+                return new string[] { string.Format(Permissions.Translation("event_is_looped"), NextEvent.GetName()) };
             if (eventOnGoing)
-                return new string[] { "Event is currently on going, try after this round" };
+                return new string[] { Permissions.Translation("event_is_ongoing") };
             if (NextEvent != null)
-                return new string[] { "Event is currently in queue, try another time" };
-            string command = string.Empty;
-            string arg = string.Empty;
-            if (args.Length == 2)
-                arg = args[1];
-            if (arg == string.Empty)
-                arg = "once";
-            try
-            {
-                command = args[0];
-                if (args.Length == 2)
-                    arg = args[1].ToLower();
-            }
-            catch (Exception exp)
-            {
-                return new string[] { "Command is incorrect! ", exp.ToString(), "", "Try:", "- event <gamemode>", "- event <gamemode> <on/off/once>" };
-            }
+                return new string[] { string.Format(Permissions.Translation("event_is_inqueue"), NextEvent.GetName()) };
 
+            //Setting eventnt
             GameEvent commandh = Gamemodes.Find(x => x.GetCommands().Contains(command));
             if (commandh != null)
             {
+                if (arg.Contains("on") && !hasFullAccess)
+                    return new string[] { Permissions.Translation("access_denied") };
                 autoStopEvent = !arg.Contains("on");
-                if(NextEvent == null)
-                    NextEvent = commandh;
+                NextEvent = commandh;
             }
-            else return new string[] { $"This event doesn't exist!" };
-            return new string[] { $"[{commandh.GetName()}] Event is {arg}" };
+            else return new string[] { Permissions.Translation("event_dont_exist") };
+            return new string[] { string.Format(Permissions.Translation("event_success"), NextEvent.GetName(), arg) };
         }
 
 
@@ -150,7 +167,8 @@ namespace EventManager
 
         public IDictionary<string, IDictionary<string, string>> GetAllDefaultTranslations()
         {
-            Dictionary<string, IDictionary<string, string>> data = new();
+            var data = new Dictionary<string, IDictionary<string, string>>();
+            data.Add(Permissions.GetName(), Permissions.DefaultTranslation);
             foreach (GameEvent gamemode in Gamemodes)
             {
                 data.Add(gamemode.GetName(), gamemode.DefaultTranslation);
@@ -160,7 +178,8 @@ namespace EventManager
 
         public IDictionary<string, IDictionary<string, string>> GetAllDefaultConfig()
         {
-            Dictionary<string, IDictionary<string, string>> data = new();
+            var data = new Dictionary<string, IDictionary<string, string>>();
+            data.Add(Permissions.GetName(), Permissions.DefaultConfig);
             foreach (GameEvent gamemode in Gamemodes)
             {
                 data.Add(gamemode.GetName(), gamemode.DefaultConfig);
@@ -171,7 +190,7 @@ namespace EventManager
         private string[] GameList()
         {
             List<string> list = new List<string>();
-            list.Add("Avalible gamemodes: ");
+            list.Add(Permissions.Translation("event_list"));
             foreach(GameEvent gamemode in Gamemodes)
             {
                 list.Add($"- {gamemode.GetName()} || {string.Join(",", gamemode.GetCommands())}");
