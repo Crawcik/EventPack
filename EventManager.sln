@@ -5,16 +5,18 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager", "EventManager\EventManager.csproj", "{66F58DE6-E79E-4919-A960-42B5E7D4AF90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versus", "Events\Versus\Versus.csproj", "{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Versus", "Events\Versus\Versus.csproj", "{9F1B76B2-F2C1-4176-9967-2F2F5D0F88A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dziady", "Events\Dziady\Dziady.csproj", "{378A0382-5036-48FA-B391-68DDB6A33E18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dziady", "Events\Dziady\Dziady.csproj", "{378A0382-5036-48FA-B391-68DDB6A33E18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxtonHale", "Events\SaxtonHale\SaxtonHale.csproj", "{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaxtonHale", "Events\SaxtonHale\SaxtonHale.csproj", "{4A6F5C18-4E11-44FA-A711-3DD954D7F83A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{66F58DE6-E79E-4919-A960-42B5E7D4AF90} = {66F58DE6-E79E-4919-A960-42B5E7D4AF90}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blackout", "Events\Blackout\Blackout.csproj", "{1E48A6D1-4042-4301-82BD-534F8EC27188}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackout", "Events\Blackout\Blackout.csproj", "{1E48A6D1-4042-4301-82BD-534F8EC27188}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropHunt", "Events\PropHunt\PropHunt.csproj", "{1C803DB9-E6DE-4136-BF49-F255F6B85836}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,10 @@ Global
 		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E48A6D1-4042-4301-82BD-534F8EC27188}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C803DB9-E6DE-4136-BF49-F255F6B85836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C803DB9-E6DE-4136-BF49-F255F6B85836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C803DB9-E6DE-4136-BF49-F255F6B85836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C803DB9-E6DE-4136-BF49-F255F6B85836}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
