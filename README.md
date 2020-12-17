@@ -3,7 +3,7 @@
 ### Author: Crawcik
 Powered by: Smod2
 
-![](https://img.shields.io/github/release/Crawcik/SL-EventPack) ![](https://img.shields.io/github/license/Crawcik/SL-EventPack)
+![](https://img.shields.io/github/release/Crawcik/SL-EventPack) ![](https://img.shields.io/github/license/Crawcik/SL-EventPack) [![Downloads](https://img.shields.io/github/downloads/Crawcik/EventPack/total.svg)](https://github.com/Crawcik/EventPack/releases)
 
 ------------
 
