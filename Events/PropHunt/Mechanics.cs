@@ -1,4 +1,5 @@
-﻿using Smod2.API;
+﻿using Smod2;
+using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using UnityEngine;
@@ -9,8 +10,9 @@ namespace PropHunt
     {
         private float updateRate = 0.1f,
             previousUpdate = 0f,
-            nextUpdate = 0f;
-
+            nextUpdate = 0f,
+            unlockTime = 20f;
+        private bool unlocked = false;
         public void OnFixedUpdate(FixedUpdateEvent ev)
         {
             if (previousUpdate >= nextUpdate)
@@ -18,6 +20,11 @@ namespace PropHunt
                 nextUpdate = previousUpdate + updateRate;
                 foreach (var pair in props)
                     UpdateProp(pair.Key, pair.Value);
+            }
+            if (!unlocked && previousUpdate >= unlockTime)
+            {
+                hunters.ForEach(x => x.Teleport(SCP012.Position));
+                unlocked = true;
             }
             previousUpdate += Time.fixedDeltaTime;
         }
