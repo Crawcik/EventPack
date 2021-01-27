@@ -13,7 +13,7 @@ using Smod2;
 namespace PropHunt
 {
     [Details("crawcik", 4, 2, 3, 9, "1.1")]
-    partial class Handler : GameEvent, IEventHandlerPlayerPickupItem, IEventHandlerPlayerDropItem
+    partial class Handler : GameEvent, IEventHandlerPlayerPickupItem
     {
         private Dictionary<string, int> QueuePoints;
         private Dictionary<Player, Item> props;
@@ -74,11 +74,16 @@ namespace PropHunt
                     QueuePoints.Add(player.UserId, 0);
                 QueuePoints[player.UserId]++;
             }
-            var queue = (from player in QueuePoints orderby player.Value select player).ToList();
+            var queue = (from player in QueuePoints orderby player.Value descending select player).ToList();
+            var now_queue = queue.Where(x =>all_players.Select(y => y.UserId).Contains(x.Key)).ToArray();
             for (int i = 0; i < all_players.Count; i++)
             {
                 if (i < hunters_count)
-                    hunters.Add(all_players.Find(x => x.UserId == queue[i].Key));
+                {
+                    Player hunter = all_players.Find(x => x.UserId == now_queue[0].Key);
+                    if (hunter != null)
+                        hunters.Add(hunter);
+                }
             }
             foreach(Player player in hunters)
                 QueuePoints[player.UserId] = 0;
@@ -112,7 +117,7 @@ namespace PropHunt
                     player.ClearInventory();
                     player.GiveItem(ItemType.MP7);
                     player.SetAmmo(AmmoType.AMMO9MM, 1000);
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 7; i++)
                         player.GiveItem(ItemType.COIN);
 
                     player.PersonalBroadcast(30, Translation("hunters_wait"), false);
@@ -152,11 +157,8 @@ namespace PropHunt
 
         public void OnPlayerDropItem(PlayerDropItemEvent ev)
         {
-            if (hunters.Exists(x=>x.UserId == ev.Player.UserId))
-            {
+            if (hunters.Exists(x => x.PlayerId == ev.Player.PlayerId))
                 ev.Item.Remove();
-                ev.Player.GiveItem(ItemType.COIN);
-            }
         }
     }
 }
