@@ -12,7 +12,6 @@ using Smod2;
 
 namespace PropHunt
 {
-    [Details("crawcik", 4, 2, 3, 9, "1.1")]
     partial class Handler : GameEvent, IEventHandlerPlayerPickupItem
     {
         private Dictionary<string, int> QueuePoints;
