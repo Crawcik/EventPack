@@ -10,6 +10,7 @@ using Smod2.EventSystem.Events;
 
 namespace Versus
 {
+    [Details("crawcik", 4, 2, 3, 9, "1.1")]
     public class Handler : GameEvent, IEventHandlerTeamRespawn
     {
         #region Settings

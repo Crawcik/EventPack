@@ -1,22 +1,24 @@
-﻿using EventManager;
-
+﻿using Smod2;
 using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
+
 using System;
 using System.Collections.Generic;
 
 namespace SaxtonHale
 {
-    class Handler : GameEvent, IEventHandlerCheckRoundEnd, IEventHandlerSpawn
+    class Handler : EventManager.GameEvent, IEventHandlerCheckRoundEnd, IEventHandlerSpawn
     {
         public Dictionary<string, int> QueuePoints;
         private Boss boss;
         public int boss_type_num;
+        bool isFFdefault;
 
         #region Settings
         public override void Register()
         {
+            isFFdefault = PluginManager.Manager.GetPlugin("crawcik.event_manager").ConfigManager.Config.GetBoolValue("friendly_fire", false);
             QueuePoints = new Dictionary<string, int>();
             DefaultTranslation = new Dictionary<string, string>()
             {
@@ -40,6 +42,8 @@ namespace SaxtonHale
 
         public override void EventStart(RoundStartEvent ev)
         {
+            if (isFFdefault)
+                PluginManager.Manager.CommandManager.CallCommand(ev.Server, "setconfig", new string[] { "friendly_fire", "false" });
             ev.Server.Map.GetElevators().ForEach(x => x.Locked = true);
             //Selecting player
             Player most_player = null;
@@ -71,7 +75,10 @@ namespace SaxtonHale
 
         public override void EventEnd(RoundEndEvent ev)
         {
+            boss.EndTask();
             boss = null;
+            if (isFFdefault)
+                PluginManager.Manager.CommandManager.CallCommand(ev.Server, "setconfig", new string[] { "friendly_fire", "true" });
         }
 
         public Class GetRandomBoss()
